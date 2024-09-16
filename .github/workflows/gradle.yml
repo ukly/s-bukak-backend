@@ -78,30 +78,14 @@ jobs:
             # 새로운 컨테이너가 정상적으로 실행되는지 헬스 체크를 합니다.
             until curl -sSf http://localhost:$NEW_PORT/actuator/health; do
                 echo "Waiting for new container to be healthy..."
-                sleep 5
+                sleep 3
             done
 
             # Nginx 설정 파일을 업데이트합니다.
-            cat <<EOL > /etc/nginx/nginx.conf
-            events {}
-
-            http {
-                server {
-                    listen 80;
-
-                    location / {
-                        proxy_pass http://localhost:$NEW_PORT;
-                        proxy_set_header Host \$host;
-                        proxy_set_header X-Real-IP \$remote_addr;
-                        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                        proxy_set_header X-Forwarded-Proto \$scheme;
-                    }
-                }
-            }
-            EOL
+            docker exec nginx sh -c "echo 'server { listen 80; location / { proxy_pass http://localhost:$NEW_PORT; proxy_set_header Host \$host; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto \$scheme; } }' > /etc/nginx/conf.d/custom.conf"
 
             # Nginx를 재시작하여 설정 파일을 적용합니다.
-            nginx -s reload
+            docker exec nginx nginx -s reload
 
             # 기존 컨테이너를 중지하고 제거합니다.
             docker stop sbukak || true
