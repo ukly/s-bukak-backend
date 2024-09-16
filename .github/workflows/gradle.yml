@@ -51,7 +51,7 @@ jobs:
           docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/sbukak .
           docker push ${{ secrets.DOCKER_USERNAME }}/sbukak
 
-      # 기존 컨테이너를 중지하고 제거한 후 새로운 이미지를 풀하고 실행하며, 사용하지 않는 Docker 리소스를 정리합니다.
+      # 무중단 배포를 위해 새로운 컨테이너를 실행한 후 기존 컨테이너를 중지합니다.
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -59,15 +59,24 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }} # pem key
           script: |
-            # Stop and remove the existing container
-            docker stop sbukak || true
-            docker rm sbukak || true
-
             # Pull the new image
             docker pull ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
 
-            # Run the new container in the background
-            docker run -d --name sbukak -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+            # Run the new container in the background with a different name
+            docker run -d --name sbukak-new -p 8081:8080 ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+
+            # Wait for the new container to be healthy
+            until curl -sSf http://localhost:8081/actuator/health; do
+              echo "Waiting for new container to be healthy..."
+              sleep 3
+            done
+
+            # Stop and remove the old container
+            docker stop sbukak || true
+            docker rm sbukak || true
+
+            # Rename the new container to the original name
+            docker rename sbukak-new sbukak
 
             # Clean up unused Docker resources
             docker image prune -a -f
