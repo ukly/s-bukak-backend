@@ -82,7 +82,7 @@ jobs:
             done
 
             # Nginx 설정 파일을 업데이트합니다.
-            docker exec nginx sh -c "echo 'server { listen 80; location / { proxy_pass http://localhost:$NEW_PORT; proxy_set_header Host \$host; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto \$scheme; } }' > /etc/nginx/conf.d/custom.conf"
+            docker exec nginx sh -c "echo 'server { listen 80; location / { proxy_pass http://${{ secrets.HOST }}:$NEW_PORT; proxy_set_header Host \$host; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto \$scheme; } }' > /etc/nginx/conf.d/custom.conf"
 
             # Nginx를 재시작하여 설정 파일을 적용합니다.
             docker exec nginx nginx -s reload
