@@ -87,7 +87,7 @@ jobs:
 
             http {
                 server {
-                    listen 8080;
+                    listen 80;
 
                     location / {
                         proxy_pass http://localhost:$NEW_PORT;
