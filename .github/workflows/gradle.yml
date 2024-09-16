@@ -1,5 +1,5 @@
  name: Deploy to Amazon EC2
-	
+
  # 언제 이 파일의 내용이 실행될 것인지 정의합니다. 
  # 여기서는 main 브랜치에 코드가 push 되거나 pull_request되었을 때 실행할 것을 말하고 있습니다.
  on:
@@ -27,7 +27,7 @@
      with:
        java-version: '17'
        distribution: "adopt"
-	  
+
    # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
    - name: Make application-prod.yaml
      run: |
@@ -35,7 +35,7 @@
          touch ./application-prod.yaml
          echo "${{ secrets.APPLICATION_PROD_YAML }}" > ./application-prod.yaml
      shell: bash	 
-   
+
    # gradle을 통해 소스를 빌드.
    - name: Build with Gradle
      run: |
@@ -61,12 +61,12 @@
          # Stop and remove the existing container
          docker stop sbukak || true
          docker rm sbukak || true
-  
+
          # Pull the new image
          docker pull ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
-  
+
          # Run the new container in the background
          docker run -d --name sbukak -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
-  
+
          # Clean up unused Docker resources
          docker image prune -a -f
