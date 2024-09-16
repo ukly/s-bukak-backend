@@ -59,24 +59,56 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }} # pem key
           script: |
-            # Pull the new image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+            #!/bin/bash
 
-            # Run the new container in the background with a different name
-            docker run -d --name sbukak-new -p 8081:8080 ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+            # 현재 활성화된 포트를 확인합니다.
+            ACTIVE_PORT=$(docker ps --filter "name=sbukak" --format "{{.Ports}}" | grep -oP '\d{4}' | head -n 1)
 
-            # Wait for the new container to be healthy
-            until curl -sSf http://localhost:8081/actuator/health; do
-              echo "Waiting for new container to be healthy..."
-              sleep 3
+            # 현재 포트가 8081이라면 새로운 컨테이너는 8082에서 실행됩니다.
+            # 현재 포트가 8082라면 새로운 컨테이너는 8081에서 실행됩니다.
+            if [ "$ACTIVE_PORT" == "8081" ]; then
+                NEW_PORT="8082"
+            else
+                NEW_PORT="8081"
+            fi
+
+            # 새로운 컨테이너를 실행합니다.
+            docker run -d --name sbukak-new -p $NEW_PORT:8080 ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+
+            # 새로운 컨테이너가 정상적으로 실행되는지 헬스 체크를 합니다.
+            until curl -sSf http://localhost:$NEW_PORT/actuator/health; do
+                echo "Waiting for new container to be healthy..."
+                sleep 5
             done
 
-            # Stop and remove the old container
+            # Nginx 설정 파일을 업데이트합니다.
+            cat <<EOL > /etc/nginx/nginx.conf
+            events {}
+
+            http {
+                server {
+                    listen 8080;
+
+                    location / {
+                        proxy_pass http://localhost:$NEW_PORT;
+                        proxy_set_header Host \$host;
+                        proxy_set_header X-Real-IP \$remote_addr;
+                        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto \$scheme;
+                    }
+                }
+            }
+            EOL
+
+            # Nginx를 재시작하여 설정 파일을 적용합니다.
+            nginx -s reload
+
+            # 기존 컨테이너를 중지하고 제거합니다.
             docker stop sbukak || true
             docker rm sbukak || true
 
-            # Rename the new container to the original name
+            # 새로운 컨테이너의 이름을 기존 이름으로 변경합니다.
             docker rename sbukak-new sbukak
 
-            # Clean up unused Docker resources
+            # 사용하지 않는 Docker 리소스를 정리합니다.
             docker image prune -a -f
