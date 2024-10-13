@@ -1,7 +1,7 @@
 package com.sbukak.domain.board.dto;
 
 import com.sbukak.domain.board.enums.BoardType;
-import com.sbukak.domain.board.tmp.SportType;
+import com.sbukak.global.enums.SportType;
 
 public record GetBoardsRequestDto(
     SportType sportType,

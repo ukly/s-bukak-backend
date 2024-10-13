@@ -2,7 +2,7 @@ package com.sbukak.domain.board.domain;
 
 import com.sbukak.domain.board.dto.BoardDto;
 import com.sbukak.domain.board.enums.BoardType;
-import com.sbukak.domain.board.tmp.SportType;
+import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.board.tmp.User;
 import com.sbukak.global.util.Utils;
 import jakarta.persistence.*;

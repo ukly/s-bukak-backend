@@ -6,7 +6,7 @@ import com.sbukak.domain.board.dto.*;
 import com.sbukak.domain.board.enums.BoardType;
 import com.sbukak.domain.board.repository.BoardRepository;
 import com.sbukak.domain.board.repository.CommentRepository;
-import com.sbukak.domain.board.tmp.SportType;
+import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.board.tmp.User;
 import com.sbukak.domain.board.tmp.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
