@@ -1,28 +1,32 @@
 package com.sbukak.global.util;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class Utils {
 
-    // LocalDatetime(2024-05-22T12:47:17.554149) -> 2024.03.23 19:33
+    // LocalDateTime -> "yyyy.MM.dd HH:mm" 형식으로 변환
     public static String dateTimeToBoardFormat(LocalDateTime dateTime) {
-        String str = dateTime.toString();
-        return new StringBuilder()
-            .append(str, 0, 10)
-            .append(" ")
-            .append(str, 11, 16)
-            .toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        return dateTime.format(formatter);
     }
 
-    // LocalDatetime -> 03/23 15:35
+    // LocalDateTime -> "MM/DD HH:mm" 형식으로 변환
     public static String dateTimeToChatFormat(LocalDateTime dateTime) {
-        String str = dateTime.toString();
-        return new StringBuilder()
-            .append(str, 5, 7)
-            .append("/")
-            .append(str, 8, 10)
-            .append(" ")
-            .append(str, 11, 16)
-            .toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd HH:mm");
+        return dateTime.format(formatter);
+    }
+
+    // LocalDatetime -> 05월 03일 (금)
+    public static String dateTimeToKoreanDate(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM월 dd일 (E)", Locale.KOREAN);
+        return dateTime.format(formatter);
+    }
+
+    // LocalDatetime -> 05월 03일 (금)
+    public static String dateTimeToTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return dateTime.format(formatter);
     }
 }
