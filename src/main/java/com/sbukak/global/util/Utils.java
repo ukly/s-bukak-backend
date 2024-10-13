@@ -7,7 +7,7 @@ import java.util.Locale;
 public class Utils {
 
     // LocalDateTime -> "yyyy.MM.dd HH:mm" 형식으로 변환
-    public static String dateTimeToBoardFormat(LocalDateTime dateTime) {
+    public static String dateTimeToFormat(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
         return dateTime.format(formatter);
     }
@@ -24,7 +24,7 @@ public class Utils {
         return dateTime.format(formatter);
     }
 
-    // LocalDatetime -> 05월 03일 (금)
+    // LocalDatetime -> 13:30
     public static String dateTimeToTime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return dateTime.format(formatter);

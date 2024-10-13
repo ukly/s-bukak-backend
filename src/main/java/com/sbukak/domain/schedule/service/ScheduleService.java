@@ -46,10 +46,9 @@ public class ScheduleService {
                         monthEntry.getKey(),
                         monthEntry.getValue().stream()
                             .map(Schedule::toScheduleDto)
-                            .collect(Collectors.toList())
+                            .toList()
                     )
-                )
-                .collect(Collectors.toList());
+                ).toList();
 
             schedulesYear.add(new GetSchedulesResponseDto.ScheduleYearDto(year, schedulesMonth));
         }

@@ -22,11 +22,11 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_team_id", nullable = false)
     private Team homeTeam;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "away_team_id", nullable = false)
     private Team awayTeam;
 
@@ -58,6 +58,7 @@ public class Schedule {
         return new ScheduleDto(
             Utils.dateTimeToKoreanDate(startAt),
             Utils.dateTimeToTime(startAt),
+            Utils.dateTimeToFormat(startAt),
             startAt,
             leagueType.name(),
             sportType.getName(),

@@ -22,7 +22,7 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -68,7 +68,7 @@ public class Board {
             content,
             user.getName(),
             user.getProfileImageUrl(),
-            Utils.dateTimeToBoardFormat(createAt),
+            Utils.dateTimeToFormat(createAt),
             comments.stream().map(Comment::toCommentDto).toList()
         );
     }

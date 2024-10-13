@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record ScheduleDto(
     String startDate,  //05월 03일 (금)
     String startTime,   //17:00
+    String startDatetime,   //2024.03.18 18:00
     LocalDateTime startAt,
     String leagueName,  //성곡리그,
     String sportType,   //축구
