@@ -1,7 +1,7 @@
 package com.sbukak.domain.board.domain;
 
 import com.sbukak.domain.board.dto.CommentDto;
-import com.sbukak.domain.board.tmp.User;
+import com.sbukak.domain.user.entity.User;
 import com.sbukak.global.util.Utils;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
