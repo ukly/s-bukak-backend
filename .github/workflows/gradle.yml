@@ -34,7 +34,6 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
-          ls -l ./build/libs/
 
       - name: Docker build & push to docker repo
         run: |
@@ -49,6 +48,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+            # 최신 이미지를 강제로 가져옵니다.
+            docker pull ${{ secrets.DOCKER_USERNAME }}/sbukak:latest
+            
             # 기존 컨테이너가 있으면 중지하고 제거합니다.
             docker stop sbukak || true
             docker rm sbukak || true
@@ -61,6 +63,6 @@ jobs:
                 echo "Waiting for new container to be healthy..."
                 sleep 3
             done
-
+      
             # 사용하지 않는 Docker 리소스를 정리합니다.
             docker image prune -a -f
