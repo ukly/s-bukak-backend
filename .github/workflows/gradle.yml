@@ -34,6 +34,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
+          ls -l ./build/libs/
 
       - name: Docker build & push to docker repo
         run: |
