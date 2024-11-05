@@ -1,5 +1,6 @@
 package com.sbukak.domain.user.entity;
 
+import com.sbukak.domain.team.domain.Team;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,9 @@ public class User {
 
     @Column(name = "email", nullable = false)
     private String email;
+
+    @Column(name = "profileImageUrl", nullable = false)
+    private String profileImageUrl;
 
     @Column(name = "isAdmin", nullable = false)
     private ROLE role;

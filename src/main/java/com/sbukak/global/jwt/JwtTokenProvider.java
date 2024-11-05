@@ -1,11 +1,15 @@
 package com.sbukak.global.jwt;
 
+import com.sbukak.global.oauth2.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -15,8 +19,13 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider implements InitializingBean {
     private Key key;
+    private final CustomUserDetailService customUserDetailService;
 
-    @Value("{$jwt.secret-key}")
+    public JwtTokenProvider(CustomUserDetailService customUserDetailService) {
+        this.customUserDetailService = customUserDetailService;
+    }
+
+    @Value("${jwt.secret-key}")
     private String secretKey;
 
     @Value("${jwt.access-token.expiration}")
@@ -68,5 +77,20 @@ public class JwtTokenProvider implements InitializingBean {
         } catch (Exception e) {
             return false;
         }
+    }
+
+
+    // JWT 토큰에서 인증 정보 조회
+    public Authentication getAuthentication(String token) {
+        String email = getEmailFromToken(token);
+        UserDetails userDetails = customUserDetailService.loadUserByUsername(email);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    // 토큰에서 이메일 추출
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        return claims.getSubject();
     }
 }
