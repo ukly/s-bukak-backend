@@ -12,7 +12,7 @@ public class GetBoardsRequestDto {
     private SportType sportType = SportType.SOCCER;
     private BoardType boardType = BoardType.FREE;
     private String query;
-    private int page = 1;
+    private int page = 0;
     private int size = 10;
     private boolean myBoardsOnly = false;
 
@@ -20,16 +20,15 @@ public class GetBoardsRequestDto {
         SportType sportType,
         BoardType boardType,
         String query,
-        Integer page,
-        Integer size,
-        Boolean myBoardsOnly
+        int page,
+        int size,
+        boolean myBoardsOnly
     ) {
-        this.sportType = sportType != null ? sportType : SportType.SOCCER;
-        this.boardType = boardType != null ? boardType : BoardType.FREE;
+        this.sportType = sportType;
+        this.boardType = boardType;
         this.query = query;
-        this.page = page != null ? page : 1;
-        this.size = size != null ? size : 10;
-        this.myBoardsOnly = myBoardsOnly != null ? myBoardsOnly : false;
+        this.page = page;
+        this.size = size;
+        this.myBoardsOnly = myBoardsOnly;
     }
-
 }
