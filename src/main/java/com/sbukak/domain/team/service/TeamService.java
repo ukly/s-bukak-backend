@@ -5,6 +5,7 @@ import com.sbukak.domain.schedule.dto.ScheduleDto;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.dto.GetTeamResponseDto;
+import com.sbukak.domain.team.dto.TeamDto;
 import com.sbukak.domain.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class TeamService {
             .sorted(Comparator.comparing(GetTeamResponseDto.TeamScheduleByYearDto::year).reversed())  // 년도별로 내림차순 정렬 (최신 년도 우선)
             .toList();
 
-        return new GetTeamResponseDto(schedulesYear);
+        return new GetTeamResponseDto(team.toTeamDto(), schedulesYear);
     }
 
 }
