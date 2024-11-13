@@ -23,8 +23,7 @@ public class TeamService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional(readOnly = true)
-    public GetTeamResponseDto getTeam() {
-        Long teamId = 1L;
+    public GetTeamResponseDto getTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new IllegalArgumentException("team not found"));
         List<Schedule> schedules = scheduleRepository.findAllByTeam(team);
