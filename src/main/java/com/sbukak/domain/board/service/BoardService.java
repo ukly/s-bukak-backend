@@ -28,14 +28,14 @@ public class BoardService {
     public GetBoardsResponseDto getBoards(
         GetBoardsRequestDto requestDto
     ) {
-        String query = requestDto.query();
-        SportType sportType = requestDto.sportType();
-        BoardType boardType = requestDto.boardType();
+        String query = requestDto.getQuery();
+        SportType sportType = requestDto.getSportType();
+        BoardType boardType = requestDto.getBoardType();
         Long userId = 1L;    //TODO
         boolean hasQuery = query != null && !query.isBlank();
-        boolean isOnlyMyBoards = requestDto.myBoardsOnly();
+        boolean isOnlyMyBoards = requestDto.isMyBoardsOnly();
 
-        Pageable pageable = PageRequest.of(requestDto.page(), requestDto.size());
+        Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize());
         Page<Board> pageBoards;
 
         if (hasQuery && isOnlyMyBoards) {   // query와 userId가 모두 있는 경우
@@ -74,6 +74,7 @@ public class BoardService {
             .boardType(requestDto.boardType())
             .title(requestDto.title())
             .content(requestDto.content())
+            .sportType(requestDto.sportType())
             .user(user)
             .build();
         boardRepository.save(build);

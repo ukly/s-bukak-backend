@@ -11,7 +11,7 @@ public record ScheduleDto(
     LocalDateTime startAt,
     String leagueName,  //성곡리그,
     String sportType,   //축구
-    BetType betType,
+    BetType betType,    //미참여
     String homeTeamName,
     String homeTeamIconImageUrl,
     String awayTeamName,

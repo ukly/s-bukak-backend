@@ -54,11 +54,13 @@ public class Board {
         String title,
         String content,
         BoardType boardType,
+        SportType sportType,
         User user
     ) {
         this.title = title;
         this.content = content;
         this.boardType = boardType;
+        this.sportType = sportType;
         this.user = user;
     }
 
