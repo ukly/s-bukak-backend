@@ -8,6 +8,7 @@ import com.sbukak.domain.team.repository.TeamRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ScheduleService {
     private final TeamRepository teamRepository;
 
     //경기를 년도와 월별로 그룹화하여 처리
+    @Transactional(readOnly = true)
     public GetSchedulesResponseDto getSchedules(SportType sportType) {
         List<Schedule> schedules = scheduleRepository.findAllBySportType(sportType);
 
