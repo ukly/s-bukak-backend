@@ -79,9 +79,10 @@ public class BoardController {
     })
     public ResponseEntity<Void> createComment(
             @Parameter(description = "댓글 작성 요청 데이터", required = true)
-            @RequestBody CreateCommentRequestDto requestDto
+            @RequestBody CreateCommentRequestDto requestDto,
+            @PathVariable("boardId") Long boardId
     ) {
-        boardService.createComment(requestDto);
+        boardService.createComment(requestDto, boardId);
         return ResponseEntity.ok().build();
     }
 }

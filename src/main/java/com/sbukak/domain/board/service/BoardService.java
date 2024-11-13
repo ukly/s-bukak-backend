@@ -81,15 +81,18 @@ public class BoardService {
     }
 
     @Transactional
-    public void createComment(CreateCommentRequestDto requestDto) {
+    public void createComment(CreateCommentRequestDto requestDto, Long boardId) {
         Long userId = 1L;    //TODO
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new IllegalArgumentException("board not found"));
         commentRepository.save(
             Comment.builder()
                 .content(requestDto.content())
                 .isAnonymous(requestDto.isAnonymous())
                 .user(user)
+                .board(board)
                 .build()
         );
     }
