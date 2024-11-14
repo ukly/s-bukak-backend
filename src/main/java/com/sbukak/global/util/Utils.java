@@ -12,6 +12,12 @@ public class Utils {
         return dateTime.format(formatter);
     }
 
+    // LocalDateTime -> "yyyy.MM.dd" 형식으로 변환
+    public static String dateTimeToDateFormat(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        return dateTime.format(formatter);
+    }
+
     // LocalDateTime -> "MM/DD HH:mm" 형식으로 변환
     public static String dateTimeToChatFormat(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd HH:mm");

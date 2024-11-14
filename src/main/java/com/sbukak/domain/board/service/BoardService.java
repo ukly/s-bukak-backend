@@ -12,12 +12,10 @@ import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -60,7 +58,12 @@ public class BoardService {
                 sportType, boardType
             );
         }
-        return new GetBoardsResponseDto(boards.stream().map(Board::toBoardDto).toList());
+        return new GetBoardsResponseDto(
+            boards.stream()
+                .sorted(Comparator.comparing(Board::getCreateAt).reversed())
+                .map(Board::toBoardDto)
+                .toList()
+        );
     }
 
     @Transactional(readOnly = true)
