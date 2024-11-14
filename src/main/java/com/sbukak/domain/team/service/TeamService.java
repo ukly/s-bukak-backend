@@ -1,5 +1,7 @@
 package com.sbukak.domain.team.service;
 
+import com.sbukak.domain.bet.domain.Bet;
+import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.dto.ScheduleDto;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
@@ -7,6 +9,9 @@ import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.dto.GetTeamResponseDto;
 import com.sbukak.domain.team.dto.TeamDto;
 import com.sbukak.domain.team.repository.TeamRepository;
+import com.sbukak.domain.user.entity.User;
+import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +27,19 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
+    private final BetRepository betRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional(readOnly = true)
-    public GetTeamResponseDto getTeam(Long teamId) {
+    public GetTeamResponseDto getTeam(Long teamId, String token) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new IllegalArgumentException("team not found"));
         List<Schedule> schedules = scheduleRepository.findAllByTeam(team);
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        List<Bet> bets = betRepository.findAllByUser(user);
 
         // 스케줄 데이터를 년도별로 그룹화하고, 내부에서 날짜 기준으로 정렬
         Map<Integer, List<Schedule>> schedulesByYear = schedules.stream()
@@ -39,7 +51,10 @@ public class TeamService {
                 int year = entry.getKey();
                 List<ScheduleDto> sortedSchedules = entry.getValue().stream()
                     .sorted(Comparator.comparing(Schedule::getStartAt))  // 날짜 순서로 정렬
-                    .map(Schedule::toScheduleDto)
+                    .map(schedule -> {
+                        boolean isParticipatedBet = bets.stream().anyMatch(it -> it.getSchedule() == schedule);
+                        return schedule.toScheduleDto(isParticipatedBet);
+                    })
                     .toList();
 
                 return new GetTeamResponseDto.TeamScheduleByYearDto(year, sortedSchedules);
