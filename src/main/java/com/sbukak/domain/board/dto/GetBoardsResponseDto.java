@@ -1,8 +1,8 @@
 package com.sbukak.domain.board.dto;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
 
 public record GetBoardsResponseDto(
-    Page<BoardDto> boards
+    List<BoardDto> boards
 ) {
 }

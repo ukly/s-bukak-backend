@@ -2,12 +2,14 @@ package com.sbukak.domain.board.controller;
 
 import com.sbukak.domain.board.dto.*;
 import com.sbukak.domain.board.service.BoardService;
+import com.sbukak.global.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/boards")
     @Operation(summary = "게시판 목록 조회", description = "게시판 목록을 조회하는 API입니다.")
@@ -28,11 +31,13 @@ public class BoardController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     public ResponseEntity<GetBoardsResponseDto> getBoards(
+            HttpServletRequest httpServletRequest,
             @Parameter(description = "게시판 목록 조회 요청 데이터", required = true)
             @ModelAttribute GetBoardsRequestDto requestDto
     ) {
+        String token = jwtTokenProvider.resolveToken(httpServletRequest);
         return ResponseEntity.ok(
-                boardService.getBoards(requestDto)
+                boardService.getBoards(requestDto, token)
         );
     }
 
@@ -62,11 +67,13 @@ public class BoardController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     public ResponseEntity<Void> createBoard(
+            HttpServletRequest httpServletRequest,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "게시물 작성 요청 데이터", required = true,
                     content = @Content(schema = @Schema(implementation = CreateBoardRequestDto.class)))
             @RequestBody CreateBoardRequestDto requestDto
     ) {
-        boardService.createBoard(requestDto);
+        String token = jwtTokenProvider.resolveToken(httpServletRequest);
+        boardService.createBoard(requestDto, token);
         return ResponseEntity.ok().build();
     }
 
@@ -78,11 +85,13 @@ public class BoardController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     public ResponseEntity<Void> createComment(
+            HttpServletRequest httpServletRequest,
             @Parameter(description = "댓글 작성 요청 데이터", required = true)
             @RequestBody CreateCommentRequestDto requestDto,
             @PathVariable("boardId") Long boardId
     ) {
-        boardService.createComment(requestDto, boardId);
+        String token = jwtTokenProvider.resolveToken(httpServletRequest);
+        boardService.createComment(requestDto, boardId, token);
         return ResponseEntity.ok().build();
     }
 }

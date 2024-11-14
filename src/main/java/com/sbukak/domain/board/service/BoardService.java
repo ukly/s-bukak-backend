@@ -9,12 +9,15 @@ import com.sbukak.domain.board.repository.CommentRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.enums.SportType;
+import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,39 +26,41 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional(readOnly = true)
     public GetBoardsResponseDto getBoards(
-        GetBoardsRequestDto requestDto
+        GetBoardsRequestDto requestDto,
+        String token
     ) {
         String query = requestDto.getQuery();
         SportType sportType = requestDto.getSportType();
         BoardType boardType = requestDto.getBoardType();
-        Long userId = 1L;    //TODO
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new IllegalArgumentException("user not found"));
         boolean hasQuery = query != null && !query.isBlank();
         boolean isOnlyMyBoards = requestDto.isMyBoardsOnly();
-
-        Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize());
-        Page<Board> pageBoards;
+        List<Board> boards;
 
         if (hasQuery && isOnlyMyBoards) {   // query와 userId가 모두 있는 경우
-            pageBoards = boardRepository.findAllBySportTypeAndBoardTypeAndUserIdAndTitleOrContentContaining(
-                query, sportType, boardType, userId, pageable
+            boards = boardRepository.findAllBySportTypeAndBoardTypeAndUserIdAndTitleOrContentContaining(
+                query, sportType, boardType, user.getId()
             );
         } else if (hasQuery) {  // query는 있지만 userId는 없는 경우
-            pageBoards = boardRepository.findAllBySportTypeAndBoardTypeAndTitleOrContentContaining(
-                query, sportType, boardType, pageable
+            boards = boardRepository.findAllBySportTypeAndBoardTypeAndTitleOrContentContaining(
+                query, sportType, boardType
             );
         } else if (isOnlyMyBoards) {    // userId는 있지만 query는 없는 경우
-            pageBoards = boardRepository.findAllBySportTypeAndBoardTypeAndUserId(
-                sportType, boardType, userId, pageable
+            boards = boardRepository.findAllBySportTypeAndBoardTypeAndUserId(
+                sportType, boardType, user.getId()
             );
         } else {    // query와 userId가 모두 없는 경우
-            pageBoards = boardRepository.findAllBySportTypeAndBoardType(
-                sportType, boardType, pageable
+            boards = boardRepository.findAllBySportTypeAndBoardType(
+                sportType, boardType
             );
         }
-        return new GetBoardsResponseDto(pageBoards.map(Board::toBoardDto));
+        return new GetBoardsResponseDto(boards.stream().map(Board::toBoardDto).toList());
     }
 
     @Transactional(readOnly = true)
@@ -66,9 +71,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void createBoard(CreateBoardRequestDto requestDto) {
-        Long userId = 1L;    //TODO
-        User user = userRepository.findById(userId)
+    public void createBoard(CreateBoardRequestDto requestDto, String token) {
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new IllegalArgumentException("user not found"));
         Board build = Board.builder()
             .boardType(requestDto.boardType())
@@ -81,9 +86,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void createComment(CreateCommentRequestDto requestDto, Long boardId) {
-        Long userId = 1L;    //TODO
-        User user = userRepository.findById(userId)
+    public void createComment(CreateCommentRequestDto requestDto, Long boardId, String token) {
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new IllegalArgumentException("user not found"));
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> new IllegalArgumentException("board not found"));
