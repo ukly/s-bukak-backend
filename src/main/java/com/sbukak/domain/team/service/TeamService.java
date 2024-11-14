@@ -3,20 +3,19 @@ package com.sbukak.domain.team.service;
 import com.sbukak.domain.bet.domain.Bet;
 import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.schedule.domain.Schedule;
-import com.sbukak.domain.schedule.dto.ScheduleDto;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.dto.GetTeamResponseDto;
-import com.sbukak.domain.team.dto.TeamDto;
 import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.jwt.JwtTokenProvider;
+import com.sbukak.global.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,28 +40,66 @@ public class TeamService {
             .orElseThrow(() -> new IllegalArgumentException("user not found"));
         List<Bet> bets = betRepository.findAllByUser(user);
 
-        // 스케줄 데이터를 년도별로 그룹화하고, 내부에서 날짜 기준으로 정렬
-        Map<Integer, List<Schedule>> schedulesByYear = schedules.stream()
-            .collect(Collectors.groupingBy(schedule -> schedule.getStartAt().getYear()));
+        Map<String, Map<String, GetTeamResponseDto.Team>> sports = Map.of(
+            team.getSportType().name().toLowerCase(),
+            Map.of(team.getNameEng(), createTeamRecord(team, schedules))
+        );
 
-        // 년도별로 그룹화된 데이터를 처리
-        List<GetTeamResponseDto.TeamScheduleByYearDto> schedulesYear = schedulesByYear.entrySet().stream()
-            .map(entry -> {
-                int year = entry.getKey();
-                List<ScheduleDto> sortedSchedules = entry.getValue().stream()
-                    .sorted(Comparator.comparing(Schedule::getStartAt))  // 날짜 순서로 정렬
-                    .map(schedule -> {
-                        boolean isParticipatedBet = bets.stream().anyMatch(it -> it.getSchedule() == schedule);
-                        return schedule.toScheduleDto(isParticipatedBet);
-                    })
-                    .toList();
+        return new GetTeamResponseDto(sports);
+    }
 
-                return new GetTeamResponseDto.TeamScheduleByYearDto(year, sortedSchedules);
-            })
-            .sorted(Comparator.comparing(GetTeamResponseDto.TeamScheduleByYearDto::year).reversed())  // 년도별로 내림차순 정렬 (최신 년도 우선)
-            .toList();
+    private GetTeamResponseDto.Team createTeamRecord(Team team, List<Schedule> schedules) {
+        List<GetTeamResponseDto.Team.Match> recentMatches = schedules.stream()
+            .filter(Schedule::isScheduleFinished)
+            .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
+            .limit(3)
+            .map(this::convertToMatch)
+            .collect(Collectors.toList());
 
-        return new GetTeamResponseDto(team.toTeamDto(), schedulesYear);
+        List<GetTeamResponseDto.Team.UpcomingMatch> upcomingMatches = schedules.stream()
+            .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
+            .limit(6)
+            .map(this::convertToUpcomingMatch)
+            .collect(Collectors.toList());
+
+        GetTeamResponseDto.Team.TeamRank teamRank = new GetTeamResponseDto.Team.TeamRank("2024",
+            team.getCollege().getLeague().getName(), team.getRanking());
+
+        return new GetTeamResponseDto.Team(
+            team.getName(),
+            team.getIconImageUrl(),
+            team.getCollege().getName(),
+            teamRank,
+            recentMatches,
+            upcomingMatches
+        );
+    }
+
+    private GetTeamResponseDto.Team.Match convertToMatch(Schedule schedule) {
+        int matchYear = schedule.getStartAt().getYear();
+        long matchRound = scheduleRepository.findAllByTeam(schedule.getHomeTeam()).stream()
+            .filter(s -> s.getStartAt().getYear() == matchYear && s.getStartAt().isBefore(schedule.getStartAt()))
+            .count() + 1;
+
+        return new GetTeamResponseDto.Team.Match(
+            schedule.getAwayTeam().getName(),
+            schedule.getAwayTeam().getIconImageUrl(),
+            schedule.getHomeTeamGoals() + " - " + schedule.getAwayTeamGoals(),
+            schedule.getLeagueType().name(),
+            String.valueOf(matchRound),
+            Utils.dateTimeToFormat(schedule.getStartAt())
+        );
+    }
+
+    private GetTeamResponseDto.Team.UpcomingMatch convertToUpcomingMatch(Schedule schedule) {
+        String result = schedule.isScheduleFinished() ?
+            schedule.getHomeTeamGoals() + " - " + schedule.getAwayTeamGoals() : null;
+        return new GetTeamResponseDto.Team.UpcomingMatch(
+            Utils.dateTimeToFormat(schedule.getStartAt()),
+            schedule.getAwayTeam().getName(),
+            schedule.getAwayTeam().getIconImageUrl(),
+            result
+        );
     }
 
 }

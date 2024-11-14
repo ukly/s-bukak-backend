@@ -76,8 +76,12 @@ public class Schedule {
         );
     }
 
+    public boolean isScheduleFinished() {
+        return LocalDateTime.now().isAfter(startAt.plusHours(1));
+    }
+
     private int[] calculateWinProbabilities() {
-        if (startAt.isAfter(LocalDateTime.now())) {
+        if (!isScheduleFinished()) {
             return null;
         }
         int totalBet = homeTeamBet + awayTeamBet;

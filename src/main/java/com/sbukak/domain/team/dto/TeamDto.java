@@ -1,7 +1,5 @@
 package com.sbukak.domain.team.dto;
 
-import com.sbukak.global.enums.GameResultType;
-
 import java.util.List;
 
 public record TeamDto(
@@ -19,6 +17,7 @@ public record TeamDto(
     int goalsDifference,
     List<Integer> recentMatches,
     String iconImageUrl,
-    String formationImageUrl
+    String formationImageUrl,
+    String nameEng
 ) {
 }

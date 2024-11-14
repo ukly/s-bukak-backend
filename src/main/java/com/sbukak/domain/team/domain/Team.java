@@ -1,6 +1,5 @@
 package com.sbukak.domain.team.domain;
 
-import com.sbukak.global.converter.GameResultTypeConverter;
 import com.sbukak.global.enums.GameResultType;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.team.dto.TeamDto;
@@ -55,15 +54,14 @@ public class Team {
     @Column(name = "goals_difference", nullable = false)
     private int goalsDifference;    //골득실
 
-    @Convert(converter = GameResultTypeConverter.class)
-    @Column(name = "recent_matches", nullable = false)
-    private List<GameResultType> recentMatches;    //최근전적
-
     @Column(name = "icon_image_url", nullable = false)
     private String iconImageUrl;    //아이콘 이미지 url
 
     @Column(name = "formation_image_url", nullable = false)
     private String formationImageUrl;    //포메이션 이미지 url
+
+    @Column(name = "name_eng", nullable = false)
+    private String nameEng;    //영어 이름
 
     @Builder
     public Team(
@@ -78,9 +76,9 @@ public class Team {
         int matches,
         int goals,
         int goalsDifference,
-        List<GameResultType> recentMatches,
         String iconImageUrl,
-        String formationImageUrl
+        String formationImageUrl,
+        String nameEng
     ) {
         this.id = id;
         this.name = name;
@@ -93,12 +91,12 @@ public class Team {
         this.matches = matches;
         this.goals = goals;
         this.goalsDifference = goalsDifference;
-        this.recentMatches = recentMatches;
         this.iconImageUrl = iconImageUrl;
         this.formationImageUrl = formationImageUrl;
+        this.nameEng = nameEng;
     }
 
-    public TeamDto toTeamDto() {
+    public TeamDto toTeamDto(List<GameResultType> recentMatches) {
         return new TeamDto(
             id,
             ranking,
@@ -114,7 +112,8 @@ public class Team {
             goalsDifference,
             recentMatches.stream().map(Enum::ordinal).toList(),
             iconImageUrl,
-            formationImageUrl
+            formationImageUrl,
+            nameEng
         );
     }
 }
