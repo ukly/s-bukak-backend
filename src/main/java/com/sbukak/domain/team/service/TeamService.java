@@ -1,14 +1,11 @@
 package com.sbukak.domain.team.service;
 
-import com.sbukak.domain.bet.domain.Bet;
-import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.dto.GetTeamResponseDto;
 import com.sbukak.domain.team.dto.UpdateTeamPlayersRequestDto;
 import com.sbukak.domain.team.repository.TeamRepository;
-import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.domain.user.service.UserService;
