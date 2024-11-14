@@ -6,16 +6,18 @@ import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.dto.GetTeamResponseDto;
+import com.sbukak.domain.team.dto.UpdateTeamPlayersRequestDto;
 import com.sbukak.domain.team.repository.TeamRepository;
+import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import com.sbukak.global.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,28 +29,25 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-    private final BetRepository betRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public GetTeamResponseDto getTeam(Long teamId, String token) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new IllegalArgumentException("team not found"));
         List<Schedule> schedules = scheduleRepository.findAllByTeam(team);
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
-        List<Bet> bets = betRepository.findAllByUser(user);
+        User user = userService.getUserByToken(token);
 
         Map<String, Map<String, GetTeamResponseDto.Team>> sports = Map.of(
             team.getSportType().name().toLowerCase(),
-            Map.of(team.getNameEng(), createTeamRecord(team, schedules))
+            Map.of(team.getNameEng(), createTeamRecord(team, schedules, user))
         );
 
         return new GetTeamResponseDto(sports);
     }
 
-    private GetTeamResponseDto.Team createTeamRecord(Team team, List<Schedule> schedules) {
+    private GetTeamResponseDto.Team createTeamRecord(Team team, List<Schedule> schedules, User user) {
         List<GetTeamResponseDto.Team.Match> recentMatches = schedules.stream()
             .filter(Schedule::isScheduleFinished)
             .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
@@ -71,7 +70,9 @@ public class TeamService {
             team.getCollege().getName(),
             teamRank,
             recentMatches,
-            upcomingMatches
+            upcomingMatches,
+            team.getPlayers(),
+            team.canUpdatePlayers(user)
         );
     }
 
@@ -102,4 +103,13 @@ public class TeamService {
         );
     }
 
+    @Transactional
+    public void updateTeamPlayers(String token, Long teamId, UpdateTeamPlayersRequestDto requestDto) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new IllegalArgumentException("team not found"));
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        team.setPlayers(requestDto.players(), user);
+    }
 }

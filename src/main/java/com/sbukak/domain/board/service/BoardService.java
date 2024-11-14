@@ -8,6 +8,7 @@ import com.sbukak.domain.board.repository.BoardRepository;
 import com.sbukak.domain.board.repository.CommentRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class BoardService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public GetBoardsResponseDto getBoards(
@@ -36,9 +38,7 @@ public class BoardService {
         String query = requestDto.getQuery();
         SportType sportType = requestDto.getSportType();
         BoardType boardType = requestDto.getBoardType();
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userService.getUserByToken(token);
         boolean hasQuery = query != null && !query.isBlank();
         boolean isOnlyMyBoards = requestDto.isMyBoardsOnly();
         List<Board> boards;
@@ -72,9 +72,7 @@ public class BoardService {
 
     @Transactional
     public void createBoard(CreateBoardRequestDto requestDto, String token) {
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userService.getUserByToken(token);
         Board build = Board.builder()
             .boardType(requestDto.boardType())
             .title(requestDto.title())
@@ -87,9 +85,7 @@ public class BoardService {
 
     @Transactional
     public void createComment(CreateCommentRequestDto requestDto, Long boardId, String token) {
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userService.getUserByToken(token);
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> new IllegalArgumentException("board not found"));
         commentRepository.save(

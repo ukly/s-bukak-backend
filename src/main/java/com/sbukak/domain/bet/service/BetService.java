@@ -8,6 +8,7 @@ import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,11 @@ public class BetService {
     private final BetRepository betRepository;
     private final UserRepository userRepository;
     private final ScheduleRepository scheduleRepository;
+    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
     public void submitBet(SubmitBetRequestDto requestDto, String token) {
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userService.getUserByToken(token);
         Schedule schedule = scheduleRepository.findById(requestDto.scheduleId())
             .orElseThrow(() -> new IllegalArgumentException("schedule not found"));
         if (betRepository.existsByUserAndSchedule(user, schedule)) {

@@ -1,5 +1,10 @@
 package com.sbukak.domain.team.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sbukak.domain.user.entity.ROLE;
+import com.sbukak.domain.user.entity.User;
 import com.sbukak.global.enums.GameResultType;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.team.dto.TeamDto;
@@ -63,6 +68,9 @@ public class Team {
     @Column(name = "name_eng", nullable = false)
     private String nameEng;    //영어 이름
 
+    @Column(name = "players", columnDefinition = "text")
+    private String players;
+
     @Builder
     public Team(
         Long id,
@@ -78,7 +86,8 @@ public class Team {
         int goalsDifference,
         String iconImageUrl,
         String formationImageUrl,
-        String nameEng
+        String nameEng,
+        String players
     ) {
         this.id = id;
         this.name = name;
@@ -94,6 +103,7 @@ public class Team {
         this.iconImageUrl = iconImageUrl;
         this.formationImageUrl = formationImageUrl;
         this.nameEng = nameEng;
+        this.players = players;
     }
 
     public TeamDto toTeamDto(List<GameResultType> recentMatches) {
@@ -115,5 +125,34 @@ public class Team {
             formationImageUrl,
             nameEng
         );
+    }
+
+    public void setPlayers(List<Player> players, User user) {
+        if (!canUpdatePlayers(user)) {
+            throw new IllegalStateException("해당 팀의 선수 정보를 수정할 권한이 없습니다.");
+        }
+        String playersStr;
+        try {
+            playersStr = new ObjectMapper().writeValueAsString(players);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("팀의 선수 정보가 올바르지 않습니다.");
+        }
+        this.players = playersStr;
+    }
+
+    public List<Player> getPlayers() {
+        if (players == null) {
+            return null;
+        }
+        try {
+            return new ObjectMapper().readValue(players, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse players JSON", e);
+        }
+    }
+
+    public boolean canUpdatePlayers(User user) {
+        return user.getTeam() == this || user.getRole() == ROLE.ADMIN;
     }
 }

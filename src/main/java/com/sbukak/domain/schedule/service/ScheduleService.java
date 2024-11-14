@@ -4,6 +4,7 @@ import com.sbukak.domain.bet.domain.Bet;
 import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
@@ -29,15 +30,14 @@ public class ScheduleService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final BetRepository betRepository;
+    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
 
     //경기를 년도와 월별로 그룹화하여 처리
     @Transactional(readOnly = true)
     public GetSchedulesResponseDto getSchedules(SportType sportType, String token) {
-        String userEmail = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userService.getUserByToken(token);
         List<Bet> bets = betRepository.findAllByUser(user);
 
         List<Schedule> schedules = scheduleRepository.findAllBySportType(sportType);

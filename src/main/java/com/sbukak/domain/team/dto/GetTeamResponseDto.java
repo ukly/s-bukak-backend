@@ -1,5 +1,7 @@
 package com.sbukak.domain.team.dto;
 
+import com.sbukak.domain.team.domain.Player;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +14,9 @@ public record GetTeamResponseDto(
         String collageName,
         TeamRank teamRank,
         List<Match> recentMatches,
-        List<UpcomingMatch> upcomingMatches
+        List<UpcomingMatch> upcomingMatches,
+        List<Player> players,
+        boolean canUpdatePlayers
     ) {
         public record TeamRank(
             String year,
