@@ -26,7 +26,7 @@ public record GetTeamResponseDto(
 
         public record Match(
             String opponent,
-            String opponentName,
+            String opponentLogoUrl,
             String score,
             String league,
             String round,
