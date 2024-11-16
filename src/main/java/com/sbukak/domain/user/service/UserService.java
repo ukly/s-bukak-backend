@@ -5,6 +5,7 @@ import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.global.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     private final HttpSession httpSession;
 
@@ -47,5 +50,11 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    public User getUserByToken(String token) {
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        return userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new IllegalArgumentException("user not found"));
     }
 }

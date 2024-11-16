@@ -46,12 +46,13 @@ public class Comment {
     private LocalDateTime updateAt;
 
     @Builder
-    public Comment(String content, User user, Boolean isAnonymous) {
+    public Comment(String content, User user, Boolean isAnonymous, Board board) {
         this.content = content;
         this.user = user;
         if (isAnonymous != null) {
             this.isAnonymous = isAnonymous;
         }
+        this.board = board;
     }
 
     public CommentDto toCommentDto() {

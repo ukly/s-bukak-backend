@@ -1,13 +1,20 @@
 package com.sbukak.domain.schedule.service;
 
+import com.sbukak.domain.bet.domain.Bet;
+import com.sbukak.domain.bet.repository.BetRepository;
+import com.sbukak.domain.user.entity.User;
+import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.repository.TeamRepository;
+import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +28,18 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
+    private final BetRepository betRepository;
+    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+
 
     //경기를 년도와 월별로 그룹화하여 처리
-    public GetSchedulesResponseDto getSchedules(SportType sportType) {
+    @Transactional(readOnly = true)
+    public GetSchedulesResponseDto getSchedules(SportType sportType, String token) {
+        User user = userService.getUserByToken(token);
+        List<Bet> bets = betRepository.findAllByUser(user);
+
         List<Schedule> schedules = scheduleRepository.findAllBySportType(sportType);
 
         // Schedule 데이터를 년도별로 그룹화한 후, 그 안에서 월별로 그룹화
@@ -45,7 +61,10 @@ public class ScheduleService {
                     monthEntry -> new GetSchedulesResponseDto.ScheduleYearDto.ScheduleMonthDto(
                         monthEntry.getKey(),
                         monthEntry.getValue().stream()
-                            .map(Schedule::toScheduleDto)
+                            .map(schedule -> {
+                                boolean isParticipatedBet = bets.stream().anyMatch(it -> it.getSchedule() == schedule);
+                                return schedule.toScheduleDto(isParticipatedBet);
+                            })
                             .toList()
                     )
                 ).toList();

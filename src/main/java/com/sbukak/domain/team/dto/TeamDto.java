@@ -1,5 +1,7 @@
 package com.sbukak.domain.team.dto;
 
+import java.util.List;
+
 public record TeamDto(
     Long id,
     int ranking,
@@ -8,13 +10,14 @@ public record TeamDto(
     String teamName,
     int points,
     int wins,
-    int draws,
+    Integer draws,
     int losses,
     int matches,
-    int goals,
+    Integer goals,
     int goalsDifference,
-    String recentMatches,
+    List<Integer> recentMatches,
     String iconImageUrl,
-    String formationImageUrl
+    String formationImageUrl,
+    String nameEng
 ) {
 }

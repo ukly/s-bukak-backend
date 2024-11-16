@@ -1,5 +1,11 @@
 package com.sbukak.domain.team.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sbukak.domain.user.entity.ROLE;
+import com.sbukak.domain.user.entity.User;
+import com.sbukak.global.enums.GameResultType;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.team.dto.TeamDto;
 import jakarta.persistence.*;
@@ -7,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -51,14 +59,17 @@ public class Team {
     @Column(name = "goals_difference", nullable = false)
     private int goalsDifference;    //골득실
 
-    @Column(name = "recent_matches", nullable = false)
-    private String recentMatches;    //최근전적
-
     @Column(name = "icon_image_url", nullable = false)
     private String iconImageUrl;    //아이콘 이미지 url
 
     @Column(name = "formation_image_url", nullable = false)
     private String formationImageUrl;    //포메이션 이미지 url
+
+    @Column(name = "name_eng", nullable = false)
+    private String nameEng;    //영어 이름
+
+    @Column(name = "players", columnDefinition = "text")
+    private String players;
 
     @Builder
     public Team(
@@ -73,9 +84,10 @@ public class Team {
         int matches,
         int goals,
         int goalsDifference,
-        String recentMatches,
         String iconImageUrl,
-        String formationImageUrl
+        String formationImageUrl,
+        String nameEng,
+        String players
     ) {
         this.id = id;
         this.name = name;
@@ -88,12 +100,13 @@ public class Team {
         this.matches = matches;
         this.goals = goals;
         this.goalsDifference = goalsDifference;
-        this.recentMatches = recentMatches;
         this.iconImageUrl = iconImageUrl;
         this.formationImageUrl = formationImageUrl;
+        this.nameEng = nameEng;
+        this.players = players;
     }
 
-    public TeamDto toTeamDto() {
+    public TeamDto toTeamDto(List<GameResultType> recentMatches) {
         return new TeamDto(
             id,
             ranking,
@@ -102,14 +115,44 @@ public class Team {
             name,
             points,
             wins,
-            draws,
+            sportType == SportType.SOCCER ? draws : null,
             losses,
             matches,
-            goals,
+            sportType == SportType.SOCCER ? goals : null,
             goalsDifference,
-            recentMatches,
+            recentMatches.stream().map(Enum::ordinal).toList(),
             iconImageUrl,
-            formationImageUrl
+            formationImageUrl,
+            nameEng
         );
+    }
+
+    public void setPlayers(List<Player> players, User user) {
+        if (!canUpdatePlayers(user)) {
+            throw new IllegalStateException("해당 팀의 선수 정보를 수정할 권한이 없습니다.");
+        }
+        String playersStr;
+        try {
+            playersStr = new ObjectMapper().writeValueAsString(players);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("팀의 선수 정보가 올바르지 않습니다.");
+        }
+        this.players = playersStr;
+    }
+
+    public List<Player> getPlayers() {
+        if (players == null) {
+            return null;
+        }
+        try {
+            return new ObjectMapper().readValue(players, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse players JSON", e);
+        }
+    }
+
+    public boolean canUpdatePlayers(User user) {
+        return user.getTeam() == this || user.getRole() == ROLE.ADMIN;
     }
 }

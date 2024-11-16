@@ -4,6 +4,7 @@ import com.sbukak.global.oauth2.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,5 +93,21 @@ public class JwtTokenProvider implements InitializingBean {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    // Request Header 에서 토큰 정보를 추출하는 메서드
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        // Bearer 타입의 토큰인지 확인
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            // "Bearer " 다음부터가 토큰 값
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public String getEmail(HttpServletRequest request) {
+        String token = resolveToken(request);
+        return getEmailFromToken(token);
     }
 }

@@ -2,31 +2,27 @@ package com.sbukak.domain.board.dto;
 
 import com.sbukak.domain.board.enums.BoardType;
 import com.sbukak.global.enums.SportType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public record GetBoardsRequestDto(
-    SportType sportType,
-    BoardType boardType,
-    String query,
-    int page,
-    int size,
-    boolean myBoardsOnly
-) {
+@Getter
+@NoArgsConstructor
+public class GetBoardsRequestDto {
+    // Getter methods
+    private SportType sportType = SportType.SOCCER;
+    private BoardType boardType = BoardType.FREE;
+    private String query;
+    private boolean myBoardsOnly = false;
+
     public GetBoardsRequestDto(
         SportType sportType,
         BoardType boardType,
         String query,
-        Integer page,
-        Integer size,
-        Boolean myBoardsOnly
+        boolean myBoardsOnly
     ) {
-        this(
-            sportType != null ? sportType : SportType.SOCCER,
-            boardType != null ? boardType : BoardType.FREE,
-            query,
-            page != null ? page : 1,
-            size != null ? size : 10,
-            myBoardsOnly != null ? myBoardsOnly : false
-        );
+        this.sportType = sportType;
+        this.boardType = boardType;
+        this.query = query;
+        this.myBoardsOnly = myBoardsOnly;
     }
-
 }

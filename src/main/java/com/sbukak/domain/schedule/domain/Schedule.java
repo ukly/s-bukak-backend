@@ -1,9 +1,10 @@
 package com.sbukak.domain.schedule.domain;
 
+import com.sbukak.domain.bet.enums.BetTimeType;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.domain.schedule.dto.ScheduleDto;
 import com.sbukak.domain.schedule.enums.LeagueType;
-import com.sbukak.domain.schedule.tmp.BetType;
+import com.sbukak.domain.bet.enums.BetType;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.global.util.Utils;
 import jakarta.persistence.*;
@@ -42,9 +43,6 @@ public class Schedule {
     @Column(name = "away_team_goals", nullable = false)
     private int awayTeamGoals;
 
-    @Column(name = "bet_type", nullable = false)
-    private BetType betType;
-
     @Column(name = "start_at", nullable = false)
     private LocalDateTime startAt;
 
@@ -54,20 +52,43 @@ public class Schedule {
     @Column(name = "league_type", nullable = false)
     private LeagueType leagueType;
 
-    public ScheduleDto toScheduleDto() {
+    public ScheduleDto toScheduleDto(boolean isParticipated) {
+        int[] probabilities = calculateWinProbabilities();
         return new ScheduleDto(
+            id,
             Utils.dateTimeToKoreanDate(startAt),
             Utils.dateTimeToTime(startAt),
             Utils.dateTimeToFormat(startAt),
             startAt,
             leagueType.name(),
             sportType.getName(),
-            betType,
+            BetType.getBetType(startAt, isParticipated),
+            BetTimeType.getBetTimeType(startAt),
+            probabilities != null ? probabilities[0] : null,
+            probabilities != null ? probabilities[1] : null,
+            homeTeamGoals,
+            awayTeamGoals,
             homeTeam.getName(),
             homeTeam.getIconImageUrl(),
             awayTeam.getName(),
             awayTeam.getIconImageUrl(),
             sportType.getPlace()
         );
+    }
+
+    public boolean isScheduleFinished() {
+        return LocalDateTime.now().isAfter(startAt.plusHours(1));
+    }
+
+    private int[] calculateWinProbabilities() {
+        if (!isScheduleFinished()) {
+            return null;
+        }
+        int totalBet = homeTeamBet + awayTeamBet;
+
+        int homeWinProbability = (homeTeamBet * 100) / totalBet;
+        int awayWinProbability = 100 - homeWinProbability;
+
+        return new int[]{homeWinProbability, awayWinProbability};
     }
 }

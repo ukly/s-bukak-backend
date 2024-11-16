@@ -15,10 +15,7 @@ import org.springframework.context.annotation.Configuration;
                 title = "S-Bukak",
                 description = "S - Bukak - 승부각, 국민대학교 북악리그 종합 플랫폼",
                 version = "v1"
-        ),
-        servers = {
-                @Server(url="http://localhost:8080", description = "로컬 서버")
-        }
+        )
 )
 
 @Configuration
