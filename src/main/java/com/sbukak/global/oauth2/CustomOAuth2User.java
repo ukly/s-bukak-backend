@@ -16,7 +16,6 @@ public class CustomOAuth2User implements OAuth2User {
         return oAuth2User.getAttribute("email");
     }
 
-
     @Override
     public Map<String, Object> getAttributes() {
         return oAuth2User.getAttributes();
