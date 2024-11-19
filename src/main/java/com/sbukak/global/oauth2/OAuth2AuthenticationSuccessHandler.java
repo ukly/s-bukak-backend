@@ -1,5 +1,6 @@
 package com.sbukak.global.oauth2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.jwt.JwtTokenProvider;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -14,7 +16,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -46,25 +54,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         if (user == null) {
             // 해당 서비스에 처음 로그인 하는 유저의 경우
-            user = User.builder()
-                    .email(email)
-                    .name(name)
-                    .profileImageUrl(profileImageUrl)
-                    .isRegistered(false)
-                    .build();
-            userRepository.save(user);
 
-            String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/signup")
-                    .queryParam("email", email)
-                    .queryParam("name", name)
-                    .build().toUriString();
+            // Zero Width Joiner와 같은 유니코드 제거
+            Map<String, String> dataMap = new HashMap<>();
+            dataMap.put("email", email);
+            dataMap.put("name", name);
 
-            response.sendRedirect(redirectUrl);
-        } else if (!user.isRegistered()) {
-            //회원가입을 완료 안한경우
+            String jsonData = new ObjectMapper().writeValueAsString(dataMap);
+            String encodedData = Base64.getUrlEncoder().encodeToString(jsonData.getBytes(StandardCharsets.UTF_8));
             String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/signup")
-                    .queryParam("email", email)
-                    .queryParam("name", name)
+                    .queryParam("data", encodedData)
                     .build().toUriString();
 
             response.sendRedirect(redirectUrl);
