@@ -15,9 +15,12 @@ public class Message {
     @Id
     private Long id;
 
+    @Column(name = "content", nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    
 }
