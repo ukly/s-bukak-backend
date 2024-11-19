@@ -26,8 +26,11 @@ public class User {
     @Column(name = "profileImageUrl", nullable = false)
     private String profileImageUrl;
 
-    @Column(name = "isAdmin", nullable = false)
+    @Column(name = "role", nullable = false)
     private ROLE role;
+
+    @Column(name = "is_registered", nullable = false)
+    private boolean isRegistered;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")

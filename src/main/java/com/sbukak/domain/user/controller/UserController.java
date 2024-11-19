@@ -34,7 +34,7 @@ public class UserController {
             newUser = userService.registerNewUser(
                     requestDto.email(),
                     requestDto.name(),
-                    ROLE.USER,
+                    ROLE.TEAM,
                     requestDto.sport(),
                     requestDto.college(),
                     requestDto.team());
@@ -42,7 +42,7 @@ public class UserController {
             newUser = userService.registerNewUser(
                     requestDto.email(),
                     requestDto.name(),
-                    ROLE.TEAM,
+                    ROLE.USER,
                     null,
                     null,
                     null);

@@ -28,6 +28,10 @@ public class UserService {
 
     @Transactional
     public User registerNewUser(String email, String name, ROLE role ,String sport, String college, String teamName) {
+        // 이미 존재하는 사용자 검색
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
         Team team = teamRepository.findByName(teamName).orElse(null);
 
         if(team != null) {
@@ -36,18 +40,16 @@ public class UserService {
             }
         }
 
-        String profileImageUrl = (String) httpSession.getAttribute("profile");
-
-        User user = User.builder()
-                .email(email)
-                .name(name)
-                .profileImageUrl(profileImageUrl)
-                .role(role)
-                .build();
-
+        //팀 아이디인 경우 팀 설정
         if(role == ROLE.TEAM){
             user.setTeam(team);
         }
+
+        //이름을 사용자가 수정한 값으로 변경
+        user.setName(name);
+
+        //회원가입 완료 처리
+        user.setRegistered(true);
 
         return userRepository.save(user);
     }

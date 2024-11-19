@@ -1,5 +1,6 @@
 package com.sbukak.global.oauth2;
 
+import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,10 +42,26 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
 
         //유저 정보가 없거나 세션이 만료된것이 아닌지 확인
-        boolean isNewUser = (userInfo != null) || !userRepository.existsByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
 
-        if (isNewUser) {
+        if (user == null) {
             // 해당 서비스에 처음 로그인 하는 유저의 경우
+            user = User.builder()
+                    .email(email)
+                    .name(name)
+                    .profileImageUrl(profileImageUrl)
+                    .isRegistered(false)
+                    .build();
+            userRepository.save(user);
+
+            String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/signup")
+                    .queryParam("email", email)
+                    .queryParam("name", name)
+                    .build().toUriString();
+
+            response.sendRedirect(redirectUrl);
+        } else if (!user.isRegistered()) {
+            //회원가입을 완료 안한경우
             String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/signup")
                     .queryParam("email", email)
                     .queryParam("name", name)
