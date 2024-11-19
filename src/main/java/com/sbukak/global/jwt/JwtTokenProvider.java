@@ -38,8 +38,10 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(String email){
+    public String createToken(String email, String name){
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("name", name);
+        claims.put("email", email);
         Date now = new Date();
         Date validity = new Date(now.getTime() + tokenValidityInSeconds * 1000); // 초 단위로 설정되었으므로 1000을 곱해 밀리초로 변환
 
