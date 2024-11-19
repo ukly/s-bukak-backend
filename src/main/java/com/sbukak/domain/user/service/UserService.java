@@ -20,10 +20,19 @@ public class UserService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final HttpSession httpSession;
-
     public User findByEmail(String email){
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @Transactional
+    public User createNewUser(String email, String name, String profileImageUrl) {
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .profileImageUrl(profileImageUrl)
+                .isRegistered(false)
+                .build();
+        return userRepository.save(user);
     }
 
     @Transactional
