@@ -49,7 +49,7 @@ public class UserController {
         }
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenProvider.createToken(newUser.getEmail());
+        String accessToken = jwtTokenProvider.createToken(newUser.getEmail(), newUser.getName());
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + accessToken)

@@ -60,11 +60,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             response.sendRedirect(redirectUrl);
         } else {
             // 해당 서비스에 이미 로그인 해본 적이 있는 유저의 경우
-            String accessToken = jwtTokenProvider.createToken(email);
+            String accessToken = jwtTokenProvider.createToken(email, name);
             String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/")
                     .queryParam("token", accessToken)
-                    .queryParam("email", email)
-                    .queryParam("name", name)
                     .build().toUriString();
 
             response.sendRedirect(redirectUrl);
