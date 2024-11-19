@@ -29,6 +29,9 @@ public class User {
     @Column(name = "role")
     private ROLE role;
 
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin;
+
     @Column(name = "is_registered", nullable = false)
     private boolean isRegistered;
 

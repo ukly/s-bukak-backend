@@ -31,6 +31,7 @@ public class UserService {
                 .email(email)
                 .profileImageUrl(profileImageUrl)
                 .isRegistered(false)
+                .isAdmin(false)
                 .build();
         return userRepository.save(user);
     }
