@@ -30,6 +30,7 @@ public class UserService {
                 .name(name)
                 .email(email)
                 .profileImageUrl(profileImageUrl)
+                .role(ROLE.USER)
                 .isRegistered(false)
                 .isAdmin(false)
                 .build();

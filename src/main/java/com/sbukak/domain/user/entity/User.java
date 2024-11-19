@@ -26,7 +26,7 @@ public class User {
     @Column(name = "profileImageUrl", nullable = false)
     private String profileImageUrl;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private ROLE role;
 
     @Column(name = "is_admin", nullable = false)
