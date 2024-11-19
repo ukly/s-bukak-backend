@@ -1,10 +1,20 @@
 package com.sbukak.global.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Locale;
+import java.util.Map;
 
 public class Utils {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
 
     // LocalDateTime -> "yyyy.MM.dd HH:mm" 형식으로 변환
     public static String dateTimeToFormat(LocalDateTime dateTime) {
@@ -34,5 +44,18 @@ public class Utils {
     public static String dateTimeToTime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return dateTime.format(formatter);
+    }
+
+    public static String createRedirectUrl(String clientUrl, String path, Map<String, String> dataMap) {
+        try {
+            String jsonData = objectMapper.writeValueAsString(dataMap);
+            String encodedData = Base64.getUrlEncoder().encodeToString(jsonData.getBytes(StandardCharsets.UTF_8));
+
+            return UriComponentsBuilder.fromHttpUrl(clientUrl + path)
+                    .queryParam("data", encodedData)
+                    .build().toUriString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create redirect URL", e);
+        }
     }
 }
