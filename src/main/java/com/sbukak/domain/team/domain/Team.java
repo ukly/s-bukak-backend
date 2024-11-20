@@ -13,7 +13,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -70,6 +73,14 @@ public class Team {
 
     @Column(name = "players", columnDefinition = "text")
     private String players;
+
+    @CreationTimestamp
+    @Column(name = "create_at", updatable = false)
+    private LocalDateTime createAt;
+
+    @UpdateTimestamp
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
 
     @Builder
     public Team(

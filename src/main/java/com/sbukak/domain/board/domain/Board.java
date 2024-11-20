@@ -66,6 +66,7 @@ public class Board {
 
     public BoardDto toBoardDto() {
         return new BoardDto(
+            id,
             title,
             content,
             user.getName(),

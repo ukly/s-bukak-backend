@@ -1,5 +1,6 @@
 package com.sbukak.domain.user.controller;
 
+import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.user.dto.RegistserRequestDto;
 import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
@@ -47,9 +48,12 @@ public class UserController {
                     null,
                     null);
         }
+        Team team = newUser.getTeam();
+        Boolean isTeamLeader = newUser.getRole() == ROLE.TEAM;
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenProvider.createToken(newUser.getEmail(), newUser.getName());
+        String accessToken = jwtTokenProvider.createToken(newUser.getEmail(), newUser.getName(), isTeamLeader,
+                team.getSportType().getName(), team.getCollege().getName(), team.getName());
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + accessToken)

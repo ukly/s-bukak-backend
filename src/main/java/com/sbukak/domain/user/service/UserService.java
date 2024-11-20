@@ -53,6 +53,7 @@ public class UserService {
 
         //팀 아이디인 경우 팀 설정
         if(role == ROLE.TEAM){
+            user.setRole(role);
             user.setTeam(team);
         }
 

@@ -1,6 +1,10 @@
 package com.sbukak.global.oauth2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sbukak.domain.team.domain.Team;
+import com.sbukak.domain.team.repository.TeamRepository;
+import com.sbukak.domain.team.service.TeamService;
+import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.domain.user.service.UserService;
@@ -31,6 +35,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final TeamRepository teamRepository;
+
     @Value("${app.client-url}")
     private String clientUrl;
 
@@ -60,7 +66,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             response.sendRedirect(redirectUrl);
         } else {
             // 해당 서비스에 이미 로그인 해본 적이 있는 유저의 경우
-            String accessToken = jwtTokenProvider.createToken(email, name);
+            Team team = user.getTeam();
+            Boolean isTeamLeader = user.getRole() == ROLE.TEAM;
+            String accessToken;
+            if (team == null) {
+                // 팀이 없는 경우의 로직 처리
+                accessToken = jwtTokenProvider.createToken(email, name, isTeamLeader, null, null, null);
+            } else {
+                accessToken = jwtTokenProvider.createToken(email, name, isTeamLeader,
+                        team.getSportType().getName(), team.getCollege().getName(), team.getName());
+            }
+
             String redirectUrl = UriComponentsBuilder.fromHttpUrl(clientUrl + "/")
                     .queryParam("token", accessToken)
                     .build().toUriString();

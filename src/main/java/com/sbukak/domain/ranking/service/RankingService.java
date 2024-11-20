@@ -8,10 +8,12 @@ import com.sbukak.domain.team.dto.TeamDto;
 import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.global.enums.GameResultType;
 import com.sbukak.global.enums.SportType;
+import com.sbukak.global.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -27,9 +29,10 @@ public class RankingService {
 
     @Transactional(readOnly = true)
     public GetRankingResponseDto getRanking(SportType sportType) {
-        List<Schedule> schedules = scheduleRepository.findAll();
+        List<Schedule> schedules = scheduleRepository.findAllBySportType(sportType);
+        List<Team> teams = teamRepository.findAllBySportType(sportType);
 
-        Map<Long, List<GameResultType>> recentResultsByTeam = teamRepository.findAllBySportType(sportType).stream()
+        Map<Long, List<GameResultType>> recentResultsByTeam = teams.stream()
             .collect(Collectors.toMap(
                 Team::getId,
                 team -> getRecentGameResultsForTeam(team, schedules)
@@ -44,7 +47,10 @@ public class RankingService {
             .map(entry -> new GetRankingResponseDto.GetRankingResponseLeague(entry.getKey(), entry.getValue()))
             .toList();
 
-        return new GetRankingResponseDto(leagues);
+        LocalDateTime lastUpdateDateTime =
+            teams.stream().map(Team::getUpdateAt).max(Comparator.naturalOrder()).orElseGet(LocalDateTime::now);
+
+        return new GetRankingResponseDto(leagues, Utils.dateTimeToFormat(lastUpdateDateTime));
     }
 
     private List<GameResultType> getRecentGameResultsForTeam(Team team, List<Schedule> schedules) {

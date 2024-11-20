@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,32 +35,28 @@ public class TeamService {
         List<Schedule> schedules = scheduleRepository.findAllByTeam(team);
         User user = userService.getUserByToken(token);
 
-        Map<String, Map<String, GetTeamResponseDto.Team>> sports = Map.of(
-            team.getSportType().name().toLowerCase(),
-            Map.of(team.getNameEng(), createTeamRecord(team, schedules, user))
-        );
-
-        return new GetTeamResponseDto(sports);
+        return createGetTeamResponse(team, schedules, user);
     }
 
-    private GetTeamResponseDto.Team createTeamRecord(Team team, List<Schedule> schedules, User user) {
-        List<GetTeamResponseDto.Team.Match> recentMatches = schedules.stream()
+    private GetTeamResponseDto createGetTeamResponse(Team team, List<Schedule> schedules, User user) {
+        List<GetTeamResponseDto.Match> recentMatches = schedules.stream()
             .filter(Schedule::isScheduleFinished)
             .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
             .limit(3)
             .map(this::convertToMatch)
             .collect(Collectors.toList());
 
-        List<GetTeamResponseDto.Team.UpcomingMatch> upcomingMatches = schedules.stream()
+        List<GetTeamResponseDto.UpcomingMatch> upcomingMatches = schedules.stream()
             .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
             .limit(6)
             .map(this::convertToUpcomingMatch)
             .collect(Collectors.toList());
 
-        GetTeamResponseDto.Team.TeamRank teamRank = new GetTeamResponseDto.Team.TeamRank("2024",
+        GetTeamResponseDto.TeamRank teamRank = new GetTeamResponseDto.TeamRank("2024",
             team.getCollege().getLeague().getName(), team.getRanking());
 
-        return new GetTeamResponseDto.Team(
+        return new GetTeamResponseDto(
+            team.getId(),
             team.getName(),
             team.getIconImageUrl(),
             team.getCollege().getName(),
@@ -73,13 +68,13 @@ public class TeamService {
         );
     }
 
-    private GetTeamResponseDto.Team.Match convertToMatch(Schedule schedule) {
+    private GetTeamResponseDto.Match convertToMatch(Schedule schedule) {
         int matchYear = schedule.getStartAt().getYear();
         long matchRound = scheduleRepository.findAllByTeam(schedule.getHomeTeam()).stream()
             .filter(s -> s.getStartAt().getYear() == matchYear && s.getStartAt().isBefore(schedule.getStartAt()))
             .count() + 1;
 
-        return new GetTeamResponseDto.Team.Match(
+        return new GetTeamResponseDto.Match(
             schedule.getAwayTeam().getName(),
             schedule.getAwayTeam().getIconImageUrl(),
             schedule.getHomeTeamGoals() + " - " + schedule.getAwayTeamGoals(),
@@ -89,10 +84,10 @@ public class TeamService {
         );
     }
 
-    private GetTeamResponseDto.Team.UpcomingMatch convertToUpcomingMatch(Schedule schedule) {
+    private GetTeamResponseDto.UpcomingMatch convertToUpcomingMatch(Schedule schedule) {
         String result = schedule.isScheduleFinished() ?
             schedule.getHomeTeamGoals() + " - " + schedule.getAwayTeamGoals() : null;
-        return new GetTeamResponseDto.Team.UpcomingMatch(
+        return new GetTeamResponseDto.UpcomingMatch(
             Utils.dateTimeToFormat(schedule.getStartAt()),
             schedule.getAwayTeam().getName(),
             schedule.getAwayTeam().getIconImageUrl(),
