@@ -3,7 +3,7 @@ package com.sbukak.domain.board.dto;
 import java.util.List;
 
 public record BoardDto(
-    Long id,
+    Long boardId,
     String title,
     String content,
     String username,
