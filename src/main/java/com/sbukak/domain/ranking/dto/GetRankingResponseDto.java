@@ -5,7 +5,8 @@ import com.sbukak.domain.team.dto.TeamDto;
 import java.util.List;
 
 public record GetRankingResponseDto(
-    List<GetRankingResponseLeague> teams
+    List<GetRankingResponseLeague> teams,
+    String lastUpdateDateTime
 ) {
     public record GetRankingResponseLeague(
         String leagueName,
