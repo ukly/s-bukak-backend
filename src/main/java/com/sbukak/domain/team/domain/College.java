@@ -1,5 +1,6 @@
 package com.sbukak.domain.team.domain;
 
+import com.sbukak.global.enums.SportType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,4 +21,7 @@ public class College {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
     private League league;
+
+    @Column(name = "sport_type", nullable = false)
+    private SportType sportType;
 }
