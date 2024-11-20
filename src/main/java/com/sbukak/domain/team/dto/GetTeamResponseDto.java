@@ -9,6 +9,7 @@ public record GetTeamResponseDto(
     Map<String, Map<String, Team>> sports
 ) {
     public record Team(
+        Long teamId,
         String name,
         String logoUrl,
         String collageName,

@@ -62,6 +62,7 @@ public class TeamService {
             team.getCollege().getLeague().getName(), team.getRanking());
 
         return new GetTeamResponseDto.Team(
+            team.getId(),
             team.getName(),
             team.getIconImageUrl(),
             team.getCollege().getName(),
