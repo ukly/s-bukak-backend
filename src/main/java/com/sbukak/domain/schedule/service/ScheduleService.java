@@ -62,8 +62,11 @@ public class ScheduleService {
                         monthEntry.getKey(),
                         monthEntry.getValue().stream()
                             .map(schedule -> {
-                                boolean isParticipatedBet = bets.stream().anyMatch(it -> it.getSchedule() == schedule);
-                                return schedule.toScheduleDto(isParticipatedBet);
+                                Bet bet =
+                                    bets.stream().filter(it -> it.getSchedule() == schedule).findFirst().orElse(null);
+                                boolean isParticipatedBet = bet != null;
+                                Boolean isBetHomeTeam = bet != null ? bet.getIsBetHomeTeam() : null;
+                                return schedule.toScheduleDto(isParticipatedBet, isBetHomeTeam);
                             })
                             .toList()
                     )

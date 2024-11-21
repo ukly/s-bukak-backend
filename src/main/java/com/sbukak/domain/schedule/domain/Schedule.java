@@ -52,7 +52,7 @@ public class Schedule {
     @Column(name = "league_type", nullable = false)
     private LeagueType leagueType;
 
-    public ScheduleDto toScheduleDto(boolean isParticipated) {
+    public ScheduleDto toScheduleDto(boolean isParticipated, Boolean isBetHomeTeam) {
         BetTimeType betTimeType = BetTimeType.getBetTimeType(startAt);
         int[] probabilities = calculateWinProbabilities(betTimeType);
         return new ScheduleDto(
@@ -73,7 +73,8 @@ public class Schedule {
             homeTeam.getIconImageUrl(),
             awayTeam.getName(),
             awayTeam.getIconImageUrl(),
-            sportType.getPlace()
+            sportType.getPlace(),
+            isBetHomeTeam
         );
     }
 
