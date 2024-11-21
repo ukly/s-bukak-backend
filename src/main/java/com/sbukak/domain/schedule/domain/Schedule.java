@@ -53,7 +53,8 @@ public class Schedule {
     private LeagueType leagueType;
 
     public ScheduleDto toScheduleDto(boolean isParticipated) {
-        int[] probabilities = calculateWinProbabilities();
+        BetTimeType betTimeType = BetTimeType.getBetTimeType(startAt);
+        int[] probabilities = calculateWinProbabilities(betTimeType);
         return new ScheduleDto(
             id,
             Utils.dateTimeToKoreanDate(startAt),
@@ -63,7 +64,7 @@ public class Schedule {
             leagueType.name(),
             sportType.getName(),
             BetType.getBetType(startAt, isParticipated),
-            BetTimeType.getBetTimeType(startAt),
+            betTimeType,
             probabilities != null ? probabilities[0] : null,
             probabilities != null ? probabilities[1] : null,
             homeTeamGoals,
@@ -80,8 +81,8 @@ public class Schedule {
         return LocalDateTime.now().isAfter(startAt.plusHours(1));
     }
 
-    private int[] calculateWinProbabilities() {
-        if (!isScheduleFinished()) {
+    private int[] calculateWinProbabilities(BetTimeType betTimeType) {
+        if (betTimeType == BetTimeType.예측예정) {
             return null;
         }
         int totalBet = homeTeamBet + awayTeamBet;
