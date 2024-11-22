@@ -57,7 +57,7 @@ public class MessageListener {
             );
 
             // WebSocket을 통해 클라이언트로 브로드캐스트
-            messagingTemplate.convertAndSend("/topic/team-cheer-messages-" + requestDTO.teamId(), responseDTO);
+            messagingTemplate.convertAndSend("/topic/cheer-messages-" + requestDTO.teamId(), responseDTO);
             log.info("Message broadcasted to WebSocket: {}", message);
 
         } catch (Exception e) {
