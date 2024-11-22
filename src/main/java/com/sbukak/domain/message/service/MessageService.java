@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     public List<MessageResponseDTO> getMessagesByTeamId(Long teamId) {
         List<Message> messages = messageRepository.findByTeamId(teamId);
         messages.forEach(message -> Hibernate.initialize(message.getUser())); // Lazy 로딩 초기화
