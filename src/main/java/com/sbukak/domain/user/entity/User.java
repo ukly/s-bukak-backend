@@ -43,4 +43,10 @@ public class User {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
+    public void checkAdmin() {
+        if (!isAdmin) {
+            throw new IllegalStateException("해당 유저는 어드민이 아닙니다.");
+        }
+    }
+
 }

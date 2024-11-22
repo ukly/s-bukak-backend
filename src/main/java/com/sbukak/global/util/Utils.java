@@ -1,11 +1,12 @@
 package com.sbukak.global.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Locale;
@@ -57,5 +58,9 @@ public class Utils {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create redirect URL", e);
         }
+    }
+
+    public static LocalDateTime StringToDateTime(String startDate, String startTime) {
+        return LocalDateTime.of(LocalDate.parse(startDate), LocalTime.parse(startTime));
     }
 }

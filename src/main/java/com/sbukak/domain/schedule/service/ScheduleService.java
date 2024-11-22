@@ -2,15 +2,20 @@ package com.sbukak.domain.schedule.service;
 
 import com.sbukak.domain.bet.domain.Bet;
 import com.sbukak.domain.bet.repository.BetRepository;
+import com.sbukak.domain.schedule.domain.Schedule;
+import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
+import com.sbukak.domain.schedule.dto.ScheduleRequestDto;
+import com.sbukak.domain.schedule.repository.ScheduleRepository;
+import com.sbukak.domain.team.domain.College;
+import com.sbukak.domain.team.domain.Team;
+import com.sbukak.domain.team.repository.CollegeRepository;
+import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.enums.SportType;
-import com.sbukak.domain.schedule.domain.Schedule;
-import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
-import com.sbukak.domain.schedule.repository.ScheduleRepository;
-import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.global.jwt.JwtTokenProvider;
+import com.sbukak.global.util.Utils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final TeamRepository teamRepository;
+    private final CollegeRepository collegeRepository;
     private final UserRepository userRepository;
     private final BetRepository betRepository;
     private final UserService userService;
@@ -76,5 +82,58 @@ public class ScheduleService {
         }
 
         return new GetSchedulesResponseDto(schedulesYear);
+    }
+
+    @Transactional
+    public void createSchedule(String token, ScheduleRequestDto requestDto) {
+        checkAdminByToken(token);
+        Team homeTeam = getTeam(requestDto.homeTeam());
+        Team awayTeam = getTeam(requestDto.awayTeam());
+        Schedule schedule = new Schedule(
+            homeTeam,
+            awayTeam,
+            Utils.StringToDateTime(requestDto.startDate(), requestDto.startTime()),
+            requestDto.sportType(),
+            requestDto.leagueType(),
+            requestDto.place()
+        );
+        scheduleRepository.save(schedule);
+    }
+
+    @Transactional
+    public void updateSchedule(String token, Long scheduleId, ScheduleRequestDto requestDto) {
+        checkAdminByToken(token);
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
+        Team homeTeam = getTeam(requestDto.homeTeam());
+        Team awayTeam = getTeam(requestDto.awayTeam());
+        schedule.update(
+            requestDto.sportType(),
+            requestDto.leagueType(),
+            homeTeam,
+            awayTeam,
+            Utils.StringToDateTime(requestDto.startDate(), requestDto.startTime()),
+            requestDto.place()
+        );
+    }
+
+    @Transactional
+    public void deleteSchedule(String token, Long scheduleId) {
+        checkAdminByToken(token);
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
+        scheduleRepository.delete(schedule);
+    }
+
+    private Team getTeam(ScheduleRequestDto.CreateScheduleTeamRequestDto teamRequestDto) {
+        College teamCollege = collegeRepository.findByName(teamRequestDto.collegeName())
+            .orElseThrow(() -> new IllegalArgumentException("소속 정보를 찾을 수 없습니다."));
+        return teamRepository.findByNameAndCollege(teamRequestDto.teamName(), teamCollege)
+            .orElseThrow(() -> new IllegalArgumentException("팀 정보를 찾을 수 없습니다."));
+    }
+
+    private void checkAdminByToken(String token) {
+        User user = userService.getUserByToken(token);
+        user.checkAdmin();
     }
 }
