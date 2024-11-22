@@ -35,10 +35,10 @@ public class Board {
     @Column(name = "board_type", nullable = false)
     private BoardType boardType;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, columnDefinition = "text")
     private String title;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @CreationTimestamp
