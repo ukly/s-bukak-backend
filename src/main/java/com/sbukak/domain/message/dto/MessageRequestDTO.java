@@ -1,10 +1,10 @@
 package com.sbukak.domain.message.dto;
 
 
-public record MessageSendRequestDTO(
+public record MessageRequestDTO(
+        Long userId,
         String content,
         Long teamId,
-        boolean isAnonymous,
-        String userName
+        boolean isAnonymous
 ) {
 }

@@ -1,66 +1,47 @@
 package com.sbukak.domain.message.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sbukak.domain.message.dto.MessageSendKafkaDTO;
-import com.sbukak.domain.message.dto.MessageSendRequestDTO;
-import com.sbukak.domain.team.domain.Team;
-import com.sbukak.domain.team.repository.TeamRepository;
-import com.sbukak.domain.user.entity.User;
-import com.sbukak.domain.user.repository.UserRepository;
-import com.sbukak.global.oauth2.CustomOAuth2User;
+import com.sbukak.domain.message.dto.MessageRequestDTO;
+import com.sbukak.domain.message.dto.MessageResponseDTO;
+import com.sbukak.domain.message.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.handler.annotation.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class MessageController {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
+    private final MessageService messageService;
 
-    @MessageMapping("/send/all")
-    public void sendAllMessage(MessageSendRequestDTO messageDTO, @AuthenticationPrincipal CustomOAuth2User customUser) {
-        User user = userRepository.findByEmail(customUser.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Email error in message"));
-        String userName = messageDTO.isAnonymous() ? "익명" : user.getName();
-
-        // Kafka 전송용 DTO 생성
-        MessageSendKafkaDTO kafkaMessageDTO = new MessageSendKafkaDTO(
-                messageDTO.content(),
-                userName,
-                null // 전체 메시지인 경우 teamId는 null
-        );
-
-        try {
-            String jsonMessage = objectMapper.writeValueAsString(kafkaMessageDTO);
-            kafkaTemplate.send("all-cheer-messages", jsonMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @MessageMapping("/send/message")
+    public void sendTeamMessage(MessageRequestDTO requestDTO) {
+        messageService.sendMessage(requestDTO, "cheer-" +
+                "messages-" + requestDTO.teamId());
     }
 
-    @MessageMapping("/send/team/{teamId}")
-    public void sendTeamMessage(MessageSendRequestDTO messageDTO, @AuthenticationPrincipal CustomOAuth2User customUser) {
-        User user = userRepository.findByEmail(customUser.getEmail()).orElseThrow(() -> new IllegalArgumentException("Email error in message"));
-        String userName = messageDTO.isAnonymous() ? "익명" : user.getName();
+    @Operation(summary = "지난 메시지 팀별 조회", description = "Fetch all messages associated with a specific team ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Messages retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)
+    })
 
-        MessageSendKafkaDTO kafkaMessageDTO = new MessageSendKafkaDTO(
-                messageDTO.content(),
-                userName,
-                messageDTO.teamId()
-        );
-
-        try {
-            String jsonMessage = objectMapper.writeValueAsString(kafkaMessageDTO);
-            kafkaTemplate.send("team-cheer-messages", jsonMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @GetMapping("/message/{teamId}")
+    @ResponseBody
+    public List<MessageResponseDTO> getMessagesByTeam(@PathVariable Long teamId) {
+        return messageService.getMessagesByTeamId(teamId);
     }
 }

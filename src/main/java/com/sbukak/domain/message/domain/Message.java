@@ -8,6 +8,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,9 +36,19 @@ public class Message {
     @Column(name = "is_anonymous", nullable = false)
     private boolean isAnonymous;
 
-    @Column(name = "is_filtering", nullable = false)
-    private boolean isFiltering;
+    @Column(name = "is_hidden", nullable = false)
+    private boolean isHidden;
 
-    @Column(name = "sport_type")
-    private SportType sportType;
+    @CreationTimestamp
+    @Column(name = "create_at", nullable = false, updatable = false)
+    private LocalDateTime createAt;
+
+    @Builder
+    public Message(String content, User user, Team team, boolean isAnonymous, boolean isHidden){
+        this.content = content;
+        this.user = user;
+        this.team = team;
+        this.isAnonymous = isAnonymous;
+        this.isHidden = isHidden;
+    }
 }
