@@ -9,6 +9,7 @@ import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class MessageService {
 
     public List<MessageResponseDTO> getMessagesByTeamId(Long teamId) {
         List<Message> messages = messageRepository.findByTeamId(teamId);
+        messages.forEach(message -> Hibernate.initialize(message.getUser())); // Lazy 로딩 초기화
         return messages.stream()
                 .map(message -> new MessageResponseDTO(
                         message.getId(),
