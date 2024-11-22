@@ -4,14 +4,16 @@ import com.sbukak.domain.board.enums.BoardType;
 import com.sbukak.global.enums.SportType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class GetBoardsRequestDto {
     // Getter methods
     private SportType sportType = SportType.SOCCER;
     private BoardType boardType = BoardType.FREE;
-    private String query;
+    private String query = "";
 
     public GetBoardsRequestDto(
         SportType sportType,
