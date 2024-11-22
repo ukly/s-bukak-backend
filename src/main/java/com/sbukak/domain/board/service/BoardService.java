@@ -7,10 +7,7 @@ import com.sbukak.domain.board.enums.BoardType;
 import com.sbukak.domain.board.repository.BoardRepository;
 import com.sbukak.domain.board.repository.CommentRepository;
 import com.sbukak.domain.user.entity.User;
-import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.domain.user.service.UserService;
-import com.sbukak.global.enums.SportType;
-import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +21,6 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
     @Transactional(readOnly = true)
@@ -33,37 +28,41 @@ public class BoardService {
         GetBoardsRequestDto requestDto,
         String token
     ) {
-        String query = requestDto.getQuery();
-        SportType sportType = requestDto.getSportType();
-        BoardType boardType = requestDto.getBoardType();
         User user = userService.getUserByToken(token);
-        boolean hasQuery = query != null && !query.isBlank();
-        boolean isOnlyMyBoards = requestDto.isMyBoardsOnly();
-        List<Board> boards;
-
-        if (hasQuery && isOnlyMyBoards) {   // query와 userId가 모두 있는 경우
-            boards = boardRepository.findAllBySportTypeAndBoardTypeAndUserIdAndTitleOrContentContaining(
-                query, sportType, boardType, user.getId()
-            );
-        } else if (hasQuery) {  // query는 있지만 userId는 없는 경우
-            boards = boardRepository.findAllBySportTypeAndBoardTypeAndTitleOrContentContaining(
-                query, sportType, boardType
-            );
-        } else if (isOnlyMyBoards) {    // userId는 있지만 query는 없는 경우
-            boards = boardRepository.findAllBySportTypeAndBoardTypeAndUserId(
-                sportType, boardType, user.getId()
-            );
-        } else {    // query와 userId가 모두 없는 경우
-            boards = boardRepository.findAllBySportTypeAndBoardType(
-                sportType, boardType
-            );
-        }
+        List<Board> boards = getBoards(requestDto, user);
         return new GetBoardsResponseDto(
             boards.stream()
                 .sorted(Comparator.comparing(Board::getCreateAt).reversed())
                 .map(Board::toBoardDto)
                 .toList()
         );
+    }
+
+    private List<Board> getBoards(GetBoardsRequestDto requestDto, User user) {
+        String query = requestDto.getQuery();
+        BoardType boardType = requestDto.getBoardType();
+        boolean hasQuery = query != null && !query.isBlank();
+
+        if (boardType == BoardType.MY_POST || boardType == BoardType.MY_COMMENT) {
+            List<Board> allBoards;
+            if (hasQuery) {
+                allBoards = boardRepository.findAllByTitleOrContentContaining(query);
+            } else {
+                allBoards = boardRepository.findAll();
+            }
+            if (boardType == BoardType.MY_POST) {
+                return allBoards.stream().filter(board -> board.getUser() == user).toList();
+            }
+            return allBoards.stream()
+                .filter(board -> board.getComments().stream().anyMatch(comment -> comment.getUser() == user))
+                .toList();
+        }
+        if (hasQuery) {
+            return boardRepository.findAllByBoardTypeAndTitleOrContentContaining(
+                query, boardType
+            );
+        }
+        return boardRepository.findAllByBoardType(boardType);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +79,6 @@ public class BoardService {
             .boardType(requestDto.boardType())
             .title(requestDto.title())
             .content(requestDto.content())
-            .sportType(requestDto.sportType())
             .user(user)
             .build();
         boardRepository.save(build);
