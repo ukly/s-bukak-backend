@@ -5,6 +5,7 @@ import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
 import com.sbukak.domain.schedule.dto.ScheduleRequestDto;
+import com.sbukak.domain.schedule.dto.ScheduleResultRequestDto;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.team.domain.College;
 import com.sbukak.domain.team.domain.Team;
@@ -123,6 +124,14 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
             .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
         scheduleRepository.delete(schedule);
+    }
+
+    @Transactional
+    public void createScheduleResult(String token, Long scheduleId, ScheduleResultRequestDto requestDto) {
+        checkAdminByToken(token);
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
+        schedule.updateScheduleResult(requestDto.homeTeamGoals(), requestDto.awayTeamGoals());
     }
 
     private Team getTeam(ScheduleRequestDto.CreateScheduleTeamRequestDto teamRequestDto) {

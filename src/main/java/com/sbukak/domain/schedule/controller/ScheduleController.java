@@ -2,6 +2,7 @@ package com.sbukak.domain.schedule.controller;
 
 import com.sbukak.domain.schedule.dto.GetSchedulesResponseDto;
 import com.sbukak.domain.schedule.dto.ScheduleRequestDto;
+import com.sbukak.domain.schedule.dto.ScheduleResultRequestDto;
 import com.sbukak.domain.schedule.service.ScheduleService;
 import com.sbukak.global.enums.SportType;
 import com.sbukak.global.jwt.JwtTokenProvider;
@@ -62,6 +63,18 @@ public class ScheduleController {
     ) {
         String token = jwtTokenProvider.resolveToken(httpServletRequest);
         scheduleService.deleteSchedule(token, scheduleId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{scheduleId}")
+    @Operation(summary = "일정 결과 등록")
+    public ResponseEntity<Void> createScheduleResult(
+        HttpServletRequest httpServletRequest,
+        @PathVariable Long scheduleId,
+        @RequestBody ScheduleResultRequestDto requestDto
+    ) {
+        String token = jwtTokenProvider.resolveToken(httpServletRequest);
+        scheduleService.createScheduleResult(token, scheduleId, requestDto);
         return ResponseEntity.ok().build();
     }
 }

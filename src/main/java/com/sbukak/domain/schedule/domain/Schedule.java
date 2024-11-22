@@ -130,4 +130,9 @@ public class Schedule {
         this.startAt = startAt;
         this.place = place;
     }
+
+    public void updateScheduleResult(int homeTeamGoals, int awayTeamGoals) {
+        this.homeTeamGoals = homeTeamGoals;
+        this.awayTeamGoals = awayTeamGoals;
+    }
 }
