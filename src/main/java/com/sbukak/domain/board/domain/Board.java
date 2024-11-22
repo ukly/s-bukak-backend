@@ -3,10 +3,12 @@ package com.sbukak.domain.board.domain;
 import com.sbukak.domain.board.dto.BoardDto;
 import com.sbukak.domain.board.enums.BoardType;
 import com.sbukak.domain.user.entity.User;
-import com.sbukak.global.enums.SportType;
 import com.sbukak.global.util.Utils;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -28,9 +30,6 @@ public class Board {
 
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<Comment> comments;
-
-    @Column(name = "sport_type", nullable = false)
-    private SportType sportType;
 
     @Column(name = "board_type", nullable = false)
     private BoardType boardType;
@@ -54,13 +53,11 @@ public class Board {
         String title,
         String content,
         BoardType boardType,
-        SportType sportType,
         User user
     ) {
         this.title = title;
         this.content = content;
         this.boardType = boardType;
-        this.sportType = sportType;
         this.user = user;
     }
 

@@ -8,7 +8,6 @@ import com.sbukak.domain.board.repository.BoardRepository;
 import com.sbukak.domain.board.repository.CommentRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.service.UserService;
-import com.sbukak.global.enums.SportType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,16 +40,15 @@ public class BoardService {
 
     private List<Board> getBoards(GetBoardsRequestDto requestDto, User user) {
         String query = requestDto.getQuery();
-        SportType sportType = requestDto.getSportType();
         BoardType boardType = requestDto.getBoardType();
         boolean hasQuery = query != null && !query.isBlank();
 
         if (boardType == BoardType.MY_POST || boardType == BoardType.MY_COMMENT) {
             List<Board> allBoards;
             if (hasQuery) {
-                allBoards = boardRepository.findAllBySportTypeAndTitleOrContentContaining(query, sportType);
+                allBoards = boardRepository.findAllByTitleOrContentContaining(query);
             } else {
-                allBoards = boardRepository.findAllBySportType(sportType);
+                allBoards = boardRepository.findAll();
             }
             if (boardType == BoardType.MY_POST) {
                 return allBoards.stream().filter(board -> board.getUser() == user).toList();
@@ -60,13 +58,11 @@ public class BoardService {
                 .toList();
         }
         if (hasQuery) {
-            return boardRepository.findAllBySportTypeAndBoardTypeAndTitleOrContentContaining(
-                query, sportType, boardType
+            return boardRepository.findAllByBoardTypeAndTitleOrContentContaining(
+                query, boardType
             );
         }
-        return boardRepository.findAllBySportTypeAndBoardType(
-            sportType, boardType
-        );
+        return boardRepository.findAllByBoardType(boardType);
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +79,6 @@ public class BoardService {
             .boardType(requestDto.boardType())
             .title(requestDto.title())
             .content(requestDto.content())
-            .sportType(requestDto.sportType())
             .user(user)
             .build();
         boardRepository.save(build);
