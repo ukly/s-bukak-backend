@@ -52,7 +52,7 @@ public class UserController {
         Boolean isTeamLeader = newUser.getRole() == ROLE.TEAM;
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenProvider.createToken(newUser.getEmail(), newUser.getName(), isTeamLeader,
+        String accessToken = jwtTokenProvider.createToken(newUser.getId(),newUser.getEmail(), newUser.getName(), isTeamLeader,
                 team.getSportType().getName(), team.getCollege().getName(), team.getName());
 
         return ResponseEntity.ok()
