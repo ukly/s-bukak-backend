@@ -1,9 +1,7 @@
 package com.sbukak.global.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.repository.TeamRepository;
-import com.sbukak.domain.team.service.TeamService;
 import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
@@ -12,7 +10,6 @@ import com.sbukak.global.jwt.JwtTokenProvider;
 import com.sbukak.global.util.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -35,7 +29,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final TeamRepository teamRepository;
 
     @Value("${app.client-url}")
     private String clientUrl;
@@ -71,9 +64,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String accessToken;
             if (team == null) {
                 // 팀이 없는 경우의 로직 처리
-                accessToken = jwtTokenProvider.createToken(email, name, isTeamLeader, null, null, null);
+                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, isTeamLeader, null, null, null);
             } else {
-                accessToken = jwtTokenProvider.createToken(email, name, isTeamLeader,
+                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, isTeamLeader,
                         team.getSportType().getName(), team.getCollege().getName(), team.getName());
             }
 

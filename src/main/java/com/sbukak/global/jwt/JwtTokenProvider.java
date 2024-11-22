@@ -38,8 +38,9 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(String email, String name, Boolean isTeamLeader, String sport, String college, String team){
+    public String createToken(Long userId, String email, String name, Boolean isTeamLeader, String sport, String college, String team){
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("userId", userId);
         claims.put("name", name);
         claims.put("email", email);
         claims.put("isTeamLeader", isTeamLeader);
@@ -48,7 +49,7 @@ public class JwtTokenProvider implements InitializingBean {
         claims.put("team", team);
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + tokenValidityInSeconds * 1000); // 초 단위로 설정되었으므로 1000을 곱해 밀리초로 변환
+        Date validity = new Date(now.getTime() + tokenValidityInSeconds * 1000000000); // 초 단위로 설정되었으므로 1000을 곱해 밀리초로 변환
 
         return Jwts.builder()
                 .setClaims(claims)
