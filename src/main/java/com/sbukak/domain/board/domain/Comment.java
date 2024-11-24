@@ -57,8 +57,8 @@ public class Comment {
 
     public CommentDto toCommentDto() {
         return new CommentDto(
-            user.getName(),
-            user.getProfileImageUrl(),
+            isAnonymous ? "익명" : user.getName(),
+            isAnonymous ? "https://sbukak.s3.ap-northeast-2.amazonaws.com/profile_anonymous.png" : user.getProfileImageUrl(),
             content,
             Utils.dateTimeToChatFormat(createAt)
         );
