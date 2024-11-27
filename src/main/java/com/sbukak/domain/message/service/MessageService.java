@@ -26,7 +26,7 @@ public class MessageService {
 
     @Transactional
     public List<MessageResponseDTO> getMessagesByTeamId(Long teamId) {
-        List<Message> messages = messageRepository.findByTeamId(teamId);
+        List<Message> messages = messageRepository.findByTeamIdOrNull(teamId);
         messages.forEach(message -> Hibernate.initialize(message.getUser())); // Lazy 로딩 초기화
         return messages.stream()
                 .map(message -> new MessageResponseDTO(
