@@ -63,4 +63,16 @@ public class Utils {
     public static LocalDateTime StringToDateTime(String startDate, String startTime) {
         return LocalDateTime.of(LocalDate.parse(startDate), LocalTime.parse(startTime));
     }
+
+    // LocalDate -> 24/11/05
+    public static String dateToStringFormat(LocalDate localDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+        return localDate.format(formatter);
+    }
+
+    // 24/11/05 -> LocalDate
+    public static LocalDate dateStringToDateFormat(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+        return LocalDate.parse(date, formatter);
+    }
 }

@@ -88,4 +88,10 @@ public class UserService {
         }
         return userRepository.findByEmail(userEmail).orElseGet(null);
     }
+
+    public User checkAdminByToken(String token) {
+        User user = getUserByToken(token);
+        user.checkAdmin();
+        return user;
+    }
 }

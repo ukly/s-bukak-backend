@@ -94,7 +94,7 @@ public class ScheduleService {
 
     @Transactional
     public void createSchedule(String token, ScheduleRequestDto requestDto) {
-        checkAdminByToken(token);
+        userService.checkAdminByToken(token);
         Team homeTeam = getTeam(requestDto.homeTeam());
         Team awayTeam = getTeam(requestDto.awayTeam());
         Schedule schedule = new Schedule(
@@ -110,7 +110,7 @@ public class ScheduleService {
 
     @Transactional
     public void updateSchedule(String token, Long scheduleId, ScheduleRequestDto requestDto) {
-        checkAdminByToken(token);
+        userService.checkAdminByToken(token);
         Schedule schedule = scheduleRepository.findById(scheduleId)
             .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
         Team homeTeam = getTeam(requestDto.homeTeam());
@@ -127,7 +127,7 @@ public class ScheduleService {
 
     @Transactional
     public void deleteSchedule(String token, Long scheduleId) {
-        checkAdminByToken(token);
+        userService.checkAdminByToken(token);
         Schedule schedule = scheduleRepository.findById(scheduleId)
             .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
         scheduleRepository.delete(schedule);
@@ -135,7 +135,7 @@ public class ScheduleService {
 
     @Transactional
     public void createScheduleResult(String token, Long scheduleId, ScheduleResultRequestDto requestDto) {
-        checkAdminByToken(token);
+        userService.checkAdminByToken(token);
         Schedule schedule = scheduleRepository.findById(scheduleId)
             .orElseThrow(() -> new IllegalArgumentException("스케줄 정보를 찾을 수 없습니다."));
         schedule.updateScheduleResult(requestDto.homeTeamGoals(), requestDto.awayTeamGoals());
@@ -148,8 +148,4 @@ public class ScheduleService {
             .orElseThrow(() -> new IllegalArgumentException("팀 정보를 찾을 수 없습니다."));
     }
 
-    private void checkAdminByToken(String token) {
-        User user = userService.getUserByToken(token);
-        user.checkAdmin();
-    }
 }
