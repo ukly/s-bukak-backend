@@ -6,7 +6,6 @@ import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.jwt.JwtTokenProvider;
-import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,5 +76,16 @@ public class UserService {
         user.setName(newName);
 
         return userRepository.save(user);
+    }
+
+    public User getUserOrNull(String token) {
+        if (token == null) {
+            return null;
+        }
+        String userEmail = jwtTokenProvider.getEmailFromToken(token);
+        if (userEmail == null) {
+            return null;
+        }
+        return userRepository.findByEmail(userEmail).orElseGet(null);
     }
 }

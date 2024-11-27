@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -28,8 +29,7 @@ public class BoardService {
         GetBoardsRequestDto requestDto,
         String token
     ) {
-        User user = userService.getUserByToken(token);
-        List<Board> boards = getBoards(requestDto, user);
+        List<Board> boards = getBoardsProcess(requestDto, token);
         return new GetBoardsResponseDto(
             boards.stream()
                 .sorted(Comparator.comparing(Board::getCreateAt).reversed())
@@ -38,12 +38,16 @@ public class BoardService {
         );
     }
 
-    private List<Board> getBoards(GetBoardsRequestDto requestDto, User user) {
+    private List<Board> getBoardsProcess(GetBoardsRequestDto requestDto, String token) {
         String query = requestDto.getQuery();
         BoardType boardType = requestDto.getBoardType();
         boolean hasQuery = query != null && !query.isBlank();
 
         if (boardType == BoardType.MY_POST || boardType == BoardType.MY_COMMENT) {
+            User user = userService.getUserOrNull(token);
+            if (user == null) {
+                return new ArrayList<>();
+            }
             List<Board> allBoards;
             if (hasQuery) {
                 allBoards = boardRepository.findAllByTitleOrContentContaining(query);
