@@ -8,6 +8,7 @@ import com.sbukak.domain.message.repository.MessageRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.global.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -35,7 +36,7 @@ public class MessageService {
                         message.isAnonymous() ? "익명" : message.getUser().getName(),
                         message.isAnonymous() ? null : message.getUser().getProfileImageUrl(),
                         message.getContent(),
-                        message.getCreateAt().toString(),
+                        Utils.dateTimeToChatFormat(message.getCreateAt()),
                         message.isAnonymous(),
                         message.isHidden()
                 ))
