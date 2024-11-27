@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/ws-chat/**","/", "/swagger", "/swagger-ui/**", "/api-docs/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/schedule", "ranking", "message/**", "/schedule", "/team/**", "/boards/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/schedule", "/ranking", "/message/**", "/schedule", "/team/**", "/boards/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionMangement -> sessionMangement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
