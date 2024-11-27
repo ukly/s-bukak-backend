@@ -29,10 +29,6 @@ public class CustomUserDetailService implements UserDetailsService {
         String roleName = "ROLE_" + user.getRole().name(); // "ROLE_USER" 또는 "ROLE_ADMIN"
 
         // User 엔티티를 UserDetails로 변환
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password("") // 패스워드가 없으므로 빈 문자열 설정
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(roleName)))
-                .build();
+        return new CustomUserDetails(user);
     }
 }

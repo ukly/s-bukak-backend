@@ -71,4 +71,11 @@ public class UserService {
         return userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new IllegalArgumentException("user not found"));
     }
+
+    @Transactional
+    public User editProfile(User user, String newName){
+        user.setName(newName);
+
+        return userRepository.save(user);
+    }
 }
