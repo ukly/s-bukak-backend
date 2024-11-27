@@ -33,12 +33,13 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new IllegalArgumentException("team not found"));
         List<Schedule> schedules = scheduleRepository.findAllByTeam(team);
-        User user = userService.getUserByToken(token);
 
-        return createGetTeamResponse(team, schedules, user);
+        return createGetTeamResponse(team, schedules, token);
     }
 
-    private GetTeamResponseDto createGetTeamResponse(Team team, List<Schedule> schedules, User user) {
+    private GetTeamResponseDto createGetTeamResponse(Team team, List<Schedule> schedules, String token) {
+        User user = userService.getUserOrNull(token);
+
         List<GetTeamResponseDto.Match> recentMatches = schedules.stream()
             .filter(Schedule::isScheduleFinished)
             .sorted((s1, s2) -> s2.getStartAt().compareTo(s1.getStartAt()))
@@ -64,7 +65,7 @@ public class TeamService {
             recentMatches,
             upcomingMatches,
             team.getPlayers(),
-            team.canUpdatePlayers(user)
+            user != null && team.canUpdatePlayers(user)
         );
     }
 

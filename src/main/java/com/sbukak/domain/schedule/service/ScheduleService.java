@@ -44,8 +44,7 @@ public class ScheduleService {
     //경기를 년도와 월별로 그룹화하여 처리
     @Transactional(readOnly = true)
     public GetSchedulesResponseDto getSchedules(SportType sportType, String token) {
-        User user = userService.getUserByToken(token);
-        List<Bet> bets = betRepository.findAllByUser(user);
+        List<Bet> bets = getBets(token);
 
         List<Schedule> schedules = scheduleRepository.findAllBySportType(sportType);
 
@@ -83,6 +82,14 @@ public class ScheduleService {
         }
 
         return new GetSchedulesResponseDto(schedulesYear);
+    }
+
+    private List<Bet> getBets(String token) {
+        User user = userService.getUserOrNull(token);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+        return betRepository.findAllByUser(user);
     }
 
     @Transactional
