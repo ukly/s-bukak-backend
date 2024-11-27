@@ -64,9 +64,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String accessToken;
             if (team == null) {
                 // 팀이 없는 경우의 로직 처리
-                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, isTeamLeader, null, null, null);
+                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, user.getProfileImageUrl() , isTeamLeader, null, null, null);
             } else {
-                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, isTeamLeader,
+                accessToken = jwtTokenProvider.createToken(user.getId(), email, name, user.getProfileImageUrl() , isTeamLeader,
                         team.getSportType().getName(), team.getCollege().getName(), team.getName());
             }
 

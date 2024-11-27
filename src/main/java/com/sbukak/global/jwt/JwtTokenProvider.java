@@ -38,11 +38,12 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Long userId, String email, String name, Boolean isTeamLeader, String sport, String college, String team){
+    public String createToken(Long userId, String email, String name, String imageUrl ,Boolean isTeamLeader, String sport, String college, String team){
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("userId", userId);
-        claims.put("name", name);
         claims.put("email", email);
+        claims.put("name", name);
+        claims.put("image", imageUrl);
         claims.put("isTeamLeader", isTeamLeader);
         claims.put("sport", sport);
         claims.put("college", college);
