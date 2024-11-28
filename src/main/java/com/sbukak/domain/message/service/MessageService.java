@@ -72,10 +72,24 @@ public class MessageService {
         Message message = messageRepository.findByIdWithUserAndTeam(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다"));
 
-        if (!message.getUser().equals(user) && !(user.getTeam().getId().equals(message.getTeam().getId()) && user.getRole().equals(ROLE.TEAM))){
+        // 권한 체크
+        if (!hasPermissionToDelete(message, user)) {
             throw new SecurityException("메시지를 삭제할 권한이 없습니다.");
         }
 
         messageRepository.delete(message);
+    }
+
+    private boolean hasPermissionToDelete(Message message, User user) {
+        // 본인이 작성한 메시지인지 확인
+        boolean isAuthor = message.getUser().getId().equals(user.getId());
+
+        // 팀의 관리자 권한인지 확인
+        boolean isTeamAdmin = user.getTeam() != null &&
+                message.getTeam() != null &&
+                user.getTeam().getId().equals(message.getTeam().getId()) &&
+                user.getRole().equals(ROLE.TEAM);
+
+        return isAuthor || isTeamAdmin;
     }
 }
