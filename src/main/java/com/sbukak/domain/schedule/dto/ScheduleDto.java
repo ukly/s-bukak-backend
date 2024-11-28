@@ -20,8 +20,10 @@ public record ScheduleDto(
     int homeTeamGoals,
     int awayTeamGoals,
     String homeTeamName,
+    String homeCollegeName,
     String homeTeamIconImageUrl,
     String awayTeamName,
+    String awayCollegeName,
     String awayTeamIconImageUrl,
     String place,    //국민대학교 운동장
     Boolean isBetHomeTeam

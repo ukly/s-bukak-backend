@@ -91,8 +91,10 @@ public class Schedule {
             homeTeamGoals,
             awayTeamGoals,
             homeTeam.getName(),
+            homeTeam.getCollege().getName(),
             homeTeam.getIconImageUrl(),
             awayTeam.getName(),
+            awayTeam.getCollege().getName(),
             awayTeam.getIconImageUrl(),
             place != null ? "국민대학교 " + place : sportType.getPlace(),
             isBetHomeTeam
