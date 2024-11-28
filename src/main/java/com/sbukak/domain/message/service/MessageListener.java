@@ -9,8 +9,10 @@ import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
+import com.sbukak.global.util.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -51,7 +53,7 @@ public class MessageListener {
                     user.getName(),
                     user.getProfileImageUrl(),
                     message.getContent(),
-                    message.getCreateAt().toString(),
+                    Utils.dateTimeToChatFormat(message.getCreateAt()),
                     message.isAnonymous(),
                     message.isHidden()
             );
