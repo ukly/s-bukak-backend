@@ -6,6 +6,7 @@ import com.sbukak.domain.message.dto.MessageRequestDTO;
 import com.sbukak.domain.message.dto.MessageResponseDTO;
 import com.sbukak.domain.message.repository.MessageRepository;
 import com.sbukak.domain.team.domain.Team;
+import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
 import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.global.util.Utils;
@@ -64,5 +65,17 @@ public class MessageService {
         messageRepository.save(message);
 
         return message;
+    }
+
+    @Transactional
+    public void deleteMessage(Long messageId, User user) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다"));
+
+        if (!message.getUser().equals(user) && !(user.getTeam() == message.getTeam() && user.getRole() == ROLE.TEAM)){
+            throw new SecurityException("메시지를 삭제할 권한이 없습니다.");
+        }
+
+        messageRepository.delete(message);
     }
 }
