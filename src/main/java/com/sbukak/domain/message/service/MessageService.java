@@ -69,10 +69,10 @@ public class MessageService {
 
     @Transactional
     public void deleteMessage(Long messageId, User user) {
-        Message message = messageRepository.findById(messageId)
+        Message message = messageRepository.findByIdWithUserAndTeam(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 메시지가 존재하지 않습니다"));
 
-        if (!message.getUser().equals(user) && !(user.getTeam() == message.getTeam() && user.getRole() == ROLE.TEAM)){
+        if (!message.getUser().equals(user) && !(user.getTeam().getId().equals(message.getTeam().getId()) && user.getRole().equals(ROLE.TEAM))){
             throw new SecurityException("메시지를 삭제할 권한이 없습니다.");
         }
 
