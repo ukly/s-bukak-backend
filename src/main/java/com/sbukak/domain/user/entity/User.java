@@ -3,6 +3,7 @@ package com.sbukak.domain.user.entity;
 import com.sbukak.domain.team.domain.Team;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +33,9 @@ public class User {
     @Column(name = "is_admin", nullable = false)
     private boolean isAdmin;
 
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "is_registered", nullable = false)
     private boolean isRegistered;
 
@@ -47,6 +51,10 @@ public class User {
         if (!isAdmin) {
             throw new IllegalStateException("해당 유저는 어드민이 아닙니다.");
         }
+    }
+
+    public void setPassword(String password) {
+        this.password = new BCryptPasswordEncoder().encode(password);
     }
 
 }

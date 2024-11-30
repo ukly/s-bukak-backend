@@ -23,7 +23,7 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // 이메일로 사용자 조회
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid login credentials"));
 
         // 권한 이름 설정
         String roleName = "ROLE_" + user.getRole().name(); // "ROLE_USER" 또는 "ROLE_ADMIN"
