@@ -1,10 +1,12 @@
 package com.sbukak.domain.user.controller;
 
 import com.sbukak.domain.team.domain.Team;
+import com.sbukak.domain.user.dto.AdminLoginRequestDTO;
 import com.sbukak.domain.user.dto.EditProfileRequestDTO;
 import com.sbukak.domain.user.dto.RegistserRequestDto;
 import com.sbukak.domain.user.entity.ROLE;
 import com.sbukak.domain.user.entity.User;
+import com.sbukak.domain.user.service.AdminAuthenticationService;
 import com.sbukak.domain.user.service.UserService;
 import com.sbukak.global.jwt.JwtTokenProvider;
 import com.sbukak.global.oauth2.CustomUserDetails;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AdminAuthenticationService adminAuthenticationService;
 
     @PostMapping("/register")
     @Operation(summary = "회원가입", description = "첫 로그인 시 추가 정보를 입력하여 회원가입하는 API 입니다.")
@@ -95,5 +99,17 @@ public class UserController {
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
+    }
+
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> login(@RequestBody AdminLoginRequestDTO loginRequest) {
+        try {
+            String token = adminAuthenticationService.adminLogin(loginRequest);
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + token)
+                    .body("로그인 성공");
+        } catch (AuthenticationServiceException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
 }

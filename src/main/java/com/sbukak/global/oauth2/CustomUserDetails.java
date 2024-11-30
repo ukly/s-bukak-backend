@@ -28,7 +28,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return ""; // 비밀번호가 없다면 빈 문자열 반환
+         if(user.getPassword() == null) return "";
+
+         return user.getPassword();
     }
 
     @Override
