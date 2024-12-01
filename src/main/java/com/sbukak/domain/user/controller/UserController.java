@@ -55,12 +55,20 @@ public class UserController {
                     null,
                     null);
         }
-        Team team = newUser.getTeam();
         Boolean isTeamLeader = newUser.getRole() == ROLE.TEAM;
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenProvider.createToken(newUser.getId(),newUser.getEmail(), newUser.getName(), newUser.getProfileImageUrl(),isTeamLeader,
-                team.getSportType().getName(), team.getCollege().getName(), team.getName());
+        String accessToken;
+
+        if(isTeamLeader) {
+            Team team = newUser.getTeam();
+            accessToken = jwtTokenProvider.createToken(newUser.getId(),newUser.getEmail(), newUser.getName(), newUser.getProfileImageUrl(),isTeamLeader,
+                    team.getSportType().getName(), team.getCollege().getName(), team.getName());
+        } else {
+            accessToken = jwtTokenProvider.createToken(newUser.getId(),newUser.getEmail(), newUser.getName(), newUser.getProfileImageUrl(),isTeamLeader,
+                    null, null, null);
+        }
+
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + accessToken)
