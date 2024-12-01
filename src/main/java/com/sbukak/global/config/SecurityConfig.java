@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/ws-chat/**","/", "/swagger", "/swagger-ui/**", "/api-docs/**", "/admin/login").permitAll()
+                        .requestMatchers("/ws-chat/**","/", "/swagger", "/swagger-ui/**", "/api-docs/**", "/admin/login", "/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/schedule", "/ranking", "/message/**", "/schedule", "/team" +
                             "/**", "/boards/**", "/board/**", "/banner").permitAll()
                         .anyRequest().authenticated()
