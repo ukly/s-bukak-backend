@@ -102,6 +102,7 @@ public class UserController {
     }
 
     @PostMapping("/admin/login")
+    @Operation(summary = "어드민 로그인")
     public ResponseEntity<?> login(@RequestBody AdminLoginRequestDTO loginRequest) {
         try {
             String token = adminAuthenticationService.adminLogin(loginRequest);
@@ -111,5 +112,13 @@ public class UserController {
         } catch (AuthenticationServiceException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(summary = "회원 탈퇴", description = "사용자 데이터 및 관련 데이터(게시물, 댓글, 예측) 정보 삭제")
+    public ResponseEntity<String> deleteCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        userService.deleteUserById(userId);
+        return ResponseEntity.ok("사용자 계정이 성공적으로 삭제되었습니다.");
     }
 }

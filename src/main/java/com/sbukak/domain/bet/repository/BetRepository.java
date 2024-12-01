@@ -21,4 +21,6 @@ public interface BetRepository extends JpaRepository<Bet, Long> {
     boolean existsByUserAndSchedule(User user, Schedule schedule);
 
     List<Bet> findAllByUser(User user);
+
+    void deleteByUserId(Long userId);
 }

@@ -17,4 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     @Query("SELECT m FROM Message m JOIN FETCH m.user u LEFT JOIN FETCH m.team t WHERE m.id = :messageId")
     Optional<Message> findByIdWithUserAndTeam(@Param("messageId") Long messageId);
+
+    void deleteByUserId(Long userId);
 }

@@ -1,5 +1,10 @@
 package com.sbukak.domain.user.service;
 
+import com.sbukak.domain.banner.repository.BannerRepository;
+import com.sbukak.domain.bet.repository.BetRepository;
+import com.sbukak.domain.board.repository.BoardRepository;
+import com.sbukak.domain.board.repository.CommentRepository;
+import com.sbukak.domain.message.repository.MessageRepository;
 import com.sbukak.domain.team.domain.Team;
 import com.sbukak.domain.team.repository.TeamRepository;
 import com.sbukak.domain.user.entity.ROLE;
@@ -10,11 +15,20 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+
+
     private final UserRepository userRepository;
+    private final BetRepository betRepository;
+    private final MessageRepository messageRepository;
+    private final BannerRepository bannerRepository;
+    private final CommentRepository commentRepository;
+    private final BoardRepository boardRepository;
     private final TeamRepository teamRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -93,5 +107,32 @@ public class UserService {
         User user = getUserByToken(token);
         user.checkAdmin();
         return user;
+    }
+
+    @Transactional
+    public void deleteUserById(Long userId){
+        // Bet 삭제
+        betRepository.deleteByUserId(userId);
+
+        // Message 삭제
+        messageRepository.deleteByUserId(userId);
+
+        // Banner 삭제
+        bannerRepository.deleteByUserId(userId);
+
+        // 사용자가 작성한 댓글 삭제
+        commentRepository.deleteByUserId(userId);
+
+        // 사용자가 작성한 게시글에 속한 댓글 삭제
+        List<Long> boardIds = boardRepository.findIdsByUserId(userId);
+        if (!boardIds.isEmpty()) {
+            commentRepository.deleteByBoardIdIn(boardIds);
+        }
+
+        // Board 삭제
+        boardRepository.deleteByUserId(userId);
+
+        // User 삭제
+        userRepository.deleteById(userId);
     }
 }
