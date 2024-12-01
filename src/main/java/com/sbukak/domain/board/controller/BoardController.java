@@ -3,6 +3,7 @@ package com.sbukak.domain.board.controller;
 import com.sbukak.domain.board.dto.*;
 import com.sbukak.domain.board.service.BoardService;
 import com.sbukak.global.jwt.JwtTokenProvider;
+import com.sbukak.global.oauth2.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -93,5 +95,36 @@ public class BoardController {
         String token = jwtTokenProvider.resolveToken(httpServletRequest);
         boardService.createComment(requestDto, boardId, token);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/board/{boardId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "게시물 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "게시물을 찾을 수 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @Operation(summary = "게시물 삭제", description = "게시물 및 관련 댓글 삭제")
+    public ResponseEntity<String> deleteBoard(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              @Parameter(description = "삭제할 게시물 ID", required = true, example = "1")
+                                                @PathVariable("boardId") Long boardId) {
+        Long userId = userDetails.getUser().getId();
+        boardService.deleteBoard(userId, boardId);
+        return ResponseEntity.ok("게시물이 성공적으로 삭제되었습니다.");
+    }
+
+    @DeleteMapping("/comment/{commentId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "댓글 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @Operation(summary = "댓글 삭제", description = "댓글 삭제")
+    public ResponseEntity<String> deleteCommentById(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                    @Parameter(description = "삭제할 댓글 ID", required = true, example = "1")
+                                                    @PathVariable("commentId") Long commentId
+    ) {
+        Long userId = userDetails.getUser().getId();
+        boardService.deleteCommentById(commentId, userId);
+        return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
     }
 }

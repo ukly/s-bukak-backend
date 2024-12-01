@@ -103,4 +103,35 @@ public class BoardService {
         );
     }
 
+    @Transactional
+    public void deleteBoard(Long userId, Long boardId){
+        // 게시물 존재 여부 확인 및 작성자 검증
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물이 존재하지 않습니다."));
+
+        if (!board.getUser().getId().equals(userId)) {
+            throw new SecurityException("해당 게시물을 삭제할 권한이 없습니다.");
+        }
+
+        // 해당 게시물의 댓글 삭제
+        commentRepository.deleteByBoardId(boardId);
+
+        // 게시물 삭제
+        boardRepository.delete(board);
+    }
+
+    @Transactional
+    public void deleteCommentById(Long commentId, Long userId) {
+        // 댓글 존재 여부 확인
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        // 요청자가 댓글 작성자인지 검증
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new SecurityException("해당 댓글을 삭제할 권한이 없습니다.");
+        }
+
+        // 댓글 삭제
+        commentRepository.delete(comment);
+    }
 }

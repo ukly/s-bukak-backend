@@ -10,4 +10,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     void deleteByUserId(Long userId);
     void deleteByBoardIdIn(List<Long> boardIds);
+    void deleteByBoardId(Long boardId);
 }
