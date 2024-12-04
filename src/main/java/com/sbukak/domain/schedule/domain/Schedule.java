@@ -137,4 +137,12 @@ public class Schedule {
         this.homeTeamGoals = homeTeamGoals;
         this.awayTeamGoals = awayTeamGoals;
     }
+
+    public void bet(boolean isBetHomeTeam) {
+        if (isBetHomeTeam) {
+            this.homeTeamBet++;
+            return;
+        }
+        this.awayTeamBet++;
+    }
 }

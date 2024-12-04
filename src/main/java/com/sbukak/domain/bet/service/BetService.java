@@ -7,21 +7,19 @@ import com.sbukak.domain.bet.repository.BetRepository;
 import com.sbukak.domain.schedule.domain.Schedule;
 import com.sbukak.domain.schedule.repository.ScheduleRepository;
 import com.sbukak.domain.user.entity.User;
-import com.sbukak.domain.user.repository.UserRepository;
 import com.sbukak.domain.user.service.UserService;
-import com.sbukak.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class BetService {
     private final BetRepository betRepository;
-    private final UserRepository userRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
 
+    @Transactional
     public void submitBet(SubmitBetRequestDto requestDto, String token) {
         User user = userService.getUserByToken(token);
         Schedule schedule = scheduleRepository.findById(requestDto.scheduleId())
@@ -34,5 +32,6 @@ public class BetService {
         }
         Bet bet = new Bet(user, schedule, requestDto.isBetHomeTeam());
         betRepository.save(bet);
+        schedule.bet(requestDto.isBetHomeTeam());
     }
 }
