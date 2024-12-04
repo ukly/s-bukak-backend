@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -74,5 +75,17 @@ public class Utils {
     public static LocalDate dateStringToDateFormat(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
         return LocalDate.parse(date, formatter);
+    }
+
+    // LocaDateTime -> 24/11/18 (월) 17시
+    public static String dateTimeToBoardFormat(LocalDateTime dateTime) {
+        String[] koreanDays = {"월", "화", "수", "목", "금", "토", "일"};
+        DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+        String koreanDay = koreanDays[dayOfWeek.getValue() - 1];
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+        String formattedDate = dateTime.format(dateFormatter);
+
+        return String.format("%s (%s) %d시", formattedDate, koreanDay, dateTime.getHour());
     }
 }

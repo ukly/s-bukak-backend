@@ -68,7 +68,7 @@ public class Board {
             content,
             user.getName(),
             user.getProfileImageUrl(),
-            Utils.dateTimeToDateFormat(createAt),
+            Utils.dateTimeToBoardFormat(createAt),
             comments.stream().map(Comment::toCommentDto).toList()
         );
     }
