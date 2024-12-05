@@ -71,7 +71,7 @@ public class MessageListener {
     }
 
     private boolean isFiltered(String content) {
-        String url = "https://hun07axt8g.execute-api.us-west-2.amazonaws.com/badword_filtering";
+        String url = "https://pbuwuj4fji.execute-api.us-west-2.amazonaws.com/badwordFiltering";
         WebClient webClient = WebClient.create();
         ObjectMapper objectMapper = new ObjectMapper(); // JSON 파싱을 위한 ObjectMapper
 
