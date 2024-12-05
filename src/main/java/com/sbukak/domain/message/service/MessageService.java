@@ -36,7 +36,7 @@ public class MessageService {
                         message.getUser().getId(),
                         message.isAnonymous() ? "익명" : message.getUser().getName(),
                         message.isAnonymous() ? null : message.getUser().getProfileImageUrl(),
-                        message.getContent(),
+                        message.isHidden() ? "클린봇에 의해 필터링 된 댓글입니다" : message.getContent(),
                         Utils.dateTimeToChatFormat(message.getCreateAt()),
                         message.isAnonymous(),
                         message.isHidden()
