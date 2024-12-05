@@ -57,6 +57,7 @@ public class Comment {
 
     public CommentDto toCommentDto() {
         return new CommentDto(
+                id,
             isAnonymous ? "익명" : user.getName(),
             isAnonymous ? "https://sbukak.s3.ap-northeast-2.amazonaws.com/profile_anonymous.png" : user.getProfileImageUrl(),
             content,
