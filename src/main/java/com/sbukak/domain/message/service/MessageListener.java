@@ -55,7 +55,7 @@ public class MessageListener {
                     user.getId(),
                     user.getName(),
                     user.getProfileImageUrl(),
-                    message.getContent(),
+                    message.isHidden() ? "클린봇에 의해 필터링 된 댓글입니다" : message.getContent(),
                     Utils.dateTimeToChatFormat(message.getCreateAt()),
                     message.isAnonymous(),
                     message.isHidden()
