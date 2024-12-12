@@ -59,23 +59,7 @@
 <br>
 <br>
 
-## 2. 프로젝트 설치 및 실행 방법
-
-### 1) 레지스토리 복제
-```
-git clone https://github.com/s-bukak/s-bukak-frontend.git
-```
-### 2) npm 설치
-```
-npm install
-```
-### 3) npm 실행
-```
-npm start
-```
-
-
-## 3. 주요 기능
+## 2. 주요 기능
 
 ### 🔑 로그인 및 회원가입
 - **로그인**: 구글 로그인으로 간편하게 로그인할 수 있으며 정중앙의 3D 일러스트로 스포츠 요소를 강조하였습니다.  
@@ -117,7 +101,7 @@ npm start
 
 <br>
 
-## 4. 프로젝트 구조  
+## 3. 프로젝트 구조  
 
 ### 💻 프론트엔드
 
@@ -183,6 +167,6 @@ src/main/java/com/sbukak
 
 ```
 
-## 5. 시연 영상 
+## 4. 시연 영상 
 ### https://www.youtube.com/watch?v=bVf9jESbU_Y
   [![Video Label](http://img.youtube.com/vi/bVf9jESbU_Y/sddefault.jpg)](https://www.youtube.com/watch?v=bVf9jESbU_Y)
